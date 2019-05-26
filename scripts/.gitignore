@@ -1,0 +1,8 @@
+*.zip
+*.json
+*.geojson
+*.xml
+*.dbf
+*.prj
+*.shp
+*.shx
