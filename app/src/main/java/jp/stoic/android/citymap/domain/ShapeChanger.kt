@@ -38,8 +38,7 @@ class ShapeChanger(
         }
         val cityCode = CityCode.from(features)
 
-        Timber.tag("onMapClick")
-            .d("CODE: ${cityCode.code}, CODE_P: ${cityCode.pref} CODE_C: ${cityCode.bigCity}")
+        Timber.tag("onMapClick").d("$cityCode")
         when (nextMode(cityCode.code, cityCode.bigCity)) {
             Mode.CITY -> {
                 officeLayer?.setFilter(Expression.eq(Expression.get("CODE"), cityCode.code))
