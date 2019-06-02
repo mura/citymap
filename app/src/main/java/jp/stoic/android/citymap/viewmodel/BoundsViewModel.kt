@@ -14,7 +14,7 @@ class BoundsViewModel(app: Application) : CoroutineViewModel(app) {
     private val boundsMap: MutableMap<String, CityBounds> = hashMapOf()
 
     private val _cityBounds = MutableLiveData<CityBounds>()
-    val cityBound: LiveData<CityBounds>
+    val cityBounds: LiveData<CityBounds>
         get() = _cityBounds
 
     @Synchronized

@@ -1,42 +1,31 @@
 package jp.stoic.android.citymap
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.GravityCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import com.google.android.play.core.splitcompat.SplitCompat
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLngBounds
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
-import com.mapbox.mapboxsdk.location.modes.CameraMode
-import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
-import com.mapbox.mapboxsdk.style.expressions.Expression.*
-import com.mapbox.mapboxsdk.style.layers.FillLayer
-import com.mapbox.mapboxsdk.style.layers.SymbolLayer
+import jp.stoic.android.citymap.domain.CameraChanger
+import jp.stoic.android.citymap.domain.ShapeChanger
 import jp.stoic.android.citymap.viewmodel.BoundsViewModel
+import jp.stoic.android.citymap.viewmodel.CameraViewModel
+import jp.stoic.android.citymap.vo.TrackingMode
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.mapview.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import timber.log.Timber
 import kotlin.coroutines.CoroutineContext
 
 
 class MainActivity : AppCompatActivity(), CoroutineScope {
-    companion object {
-        private const val SHAPE_LAYER_ID = "city-shape"
-        private const val SHAPE_DATA_LAYER_ID = "city-shape-data"
-    }
-
     private lateinit var job: Job
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
@@ -45,16 +34,10 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     private var mapboxMap: MapboxMap? = null
     private var currentStyle: Style? = null
 
-    private var cityShapeLayer: FillLayer? = null
-    private var officeLayer: SymbolLayer? = null
-    private var currentCode: String = "23100"
+    private var shapeChanger: ShapeChanger? = null
 
     private lateinit var boundsViewModel: BoundsViewModel
-
-    override fun attachBaseContext(newBase: Context?) {
-        super.attachBaseContext(newBase)
-        SplitCompat.install(this)
-    }
+    private lateinit var cameraViewModel: CameraViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,23 +46,25 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         job = Job()
 
         boundsViewModel = ViewModelProviders.of(this).get(BoundsViewModel::class.java)
-        boundsViewModel.cityBound.observe(this, Observer {
-            if (currentCode == it.code) {
+        boundsViewModel.cityBounds.observe(this, Observer {
+            if (shapeChanger?.currentCode == it.code) {
                 easeCameraWithBounds(it.latLngBounds)
             }
         })
+        cameraViewModel = ViewModelProviders.of(this).get(CameraViewModel::class.java)
 
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync { mapboxMap ->
             this.mapboxMap = mapboxMap
+            cameraViewModel.trackingMode.observe(this, CameraChanger(mapboxMap))
             mapboxMap.setStyle("mapbox://styles/muracchi/cjw2rwfof0by31cox2yuck1j6") { style ->
                 this.currentStyle = style
                 enableLocationComponent(mapboxMap, style)
-                cityShapeLayer = style.getLayerAs(SHAPE_LAYER_ID)
-                officeLayer = style.getLayerAs("office")
                 //mapboxMap.addOnMoveListener(createOnMoveListener())
-                mapboxMap.addOnMapClickListener(createOnMapCLickListener())
-                boundsViewModel.searchBounds(currentCode)
+                val shapeChanger = ShapeChanger(mapboxMap, style, boundsViewModel)
+                mapboxMap.addOnMapClickListener(shapeChanger)
+                boundsViewModel.searchBounds(shapeChanger.currentCode)
+                this.shapeChanger = shapeChanger
             }
         }
 
@@ -88,73 +73,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
                 return@setOnClickListener
             }
 
-            mapboxMap?.let {
-                if (!it.locationComponent.isLocationComponentEnabled) {
-                    return@let
-                }
-                if (it.locationComponent.cameraMode == CameraMode.TRACKING) {
-                    it.locationComponent.cameraMode = CameraMode.NONE
-                    it.locationComponent.renderMode = RenderMode.NORMAL
-                } else {
-                    it.locationComponent.cameraMode = CameraMode.TRACKING
-                    it.locationComponent.renderMode = RenderMode.COMPASS
-                }
-            }
-        }
-
-        menuImageButton.setOnClickListener {
-            drawerLayout.openDrawer(GravityCompat.START)
-        }
-    }
-
-    private fun createOnMapCLickListener(): MapboxMap.OnMapClickListener {
-        return MapboxMap.OnMapClickListener { latLng ->
-            mapboxMap?.let {
-                val point = it.projection.toScreenLocation(latLng)
-                val features = it.queryRenderedFeatures(point, SHAPE_DATA_LAYER_ID)
-                if (features.size == 0) {
-                    return@let
-                }
-                val feature = features
-                    .filter { feature ->
-                        val index = feature.geometry()?.type()?.indexOf("Polygon") ?: -1
-                        index >= 0
-                    }
-                    .first { feature ->
-                        feature.getProperty("CODE") != null
-                    }
-
-                val code = feature.getProperty("CODE").asString
-                val codec = feature.getProperty("CODE_C").asString
-                val codep = feature.getProperty("CODE_P").asString
-                Timber.tag("onMapClick").d("CODE: $code, CODE_P: $codep CODE_C: $codec")
-                if (currentCode == code) {
-                    if (codec.isNotEmpty()) {
-                        officeLayer?.setFilter(any(eq(get("CODE"), codec), eq(get("CODE_C"), codec)))
-                        cityShapeLayer?.setFilter(eq(get("CODE_C"), codec))
-                        currentCode = codec
-                    } else {
-                        officeLayer?.setFilter(eq(get("CODE_P"), codep))
-                        cityShapeLayer?.setFilter(eq(get("CODE_P"), codep))
-                        currentCode = codep
-                    }
-                    boundsViewModel.searchBounds(currentCode)
-                    return@let
-                } else if (currentCode == codec) {
-                    officeLayer?.setFilter(eq(get("CODE_P"), codep))
-                    cityShapeLayer?.setFilter(eq(get("CODE_P"), codep))
-                    currentCode = codep
-                    boundsViewModel.searchBounds(currentCode)
-                    return@let
-                }
-                currentCode = code
-                officeLayer?.setFilter(eq(get("CODE"), code))
-                cityShapeLayer?.setFilter(eq(get("CODE"), code))
-                boundsViewModel.searchBounds(currentCode)
-                return@OnMapClickListener true
-            }
-
-            return@OnMapClickListener false
+            cameraViewModel.invertTrackingMode()
         }
     }
 
@@ -168,8 +87,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             LocationComponentActivationOptions.builder(this, style).build()
         )
         mapboxMap.locationComponent.isLocationComponentEnabled = true
-        mapboxMap.locationComponent.cameraMode = CameraMode.TRACKING
-        mapboxMap.locationComponent.renderMode = RenderMode.COMPASS
+        cameraViewModel.trackingMode.value = TrackingMode.TRACKING
     }
 
     private fun enableLocationComponent() {
@@ -179,11 +97,8 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     }
 
     private fun easeCameraWithBounds(bounds: LatLngBounds) {
+        cameraViewModel.trackingMode.value = TrackingMode.NONE
         mapboxMap?.let {
-            if (it.locationComponent.isLocationComponentEnabled) {
-                it.locationComponent.cameraMode = CameraMode.NONE
-                it.locationComponent.renderMode = RenderMode.NORMAL
-            }
             it.easeCamera(CameraUpdateFactory.newLatLngBounds(bounds, 50))
         }
     }
@@ -233,8 +148,11 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 
     override fun onDestroy() {
         job.cancel()
-        super.onDestroy()
+        shapeChanger?.let {
+            mapboxMap?.removeOnMapClickListener(it)
+        }
         mapView.onDestroy()
+        super.onDestroy()
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
