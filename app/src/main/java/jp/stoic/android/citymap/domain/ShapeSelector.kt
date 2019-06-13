@@ -6,14 +6,14 @@ import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.expressions.Expression
 import com.mapbox.mapboxsdk.style.layers.FillLayer
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
-import jp.stoic.android.citymap.viewmodel.BoundsViewModel
+import jp.stoic.android.citymap.viewmodel.ShapeViewModel
 import jp.stoic.android.citymap.vo.CityCode
 import timber.log.Timber
 
-class ShapeChanger(
+class ShapeSelector(
     private val mapboxMap: MapboxMap,
     style: Style,
-    private val boundsViewModel: BoundsViewModel
+    private val shapeViewModel: ShapeViewModel
 ) : MapboxMap.OnMapClickListener {
     companion object {
         private const val SHAPE_LAYER_ID = "city-shape"
@@ -22,7 +22,6 @@ class ShapeChanger(
 
     private var cityShapeLayer: FillLayer? = style.getLayerAs(SHAPE_LAYER_ID)
     private var officeLayer: SymbolLayer? = style.getLayerAs("office")
-    var currentCode: String = "23100"
 
     private enum class Mode {
         CITY,
@@ -39,11 +38,11 @@ class ShapeChanger(
         val cityCode = CityCode.from(features)
 
         Timber.tag("onMapClick").d("$cityCode")
-        when (nextMode(cityCode.code, cityCode.bigCity)) {
+        val currentCode = when (nextMode(cityCode.code, cityCode.bigCity)) {
             Mode.CITY -> {
                 officeLayer?.setFilter(Expression.eq(Expression.get("CODE"), cityCode.code))
                 cityShapeLayer?.setFilter(Expression.eq(Expression.get("CODE"), cityCode.code))
-                currentCode = cityCode.code
+                cityCode.code
             }
             Mode.BIG_CITY -> {
                 officeLayer?.setFilter(
@@ -53,19 +52,20 @@ class ShapeChanger(
                     )
                 )
                 cityShapeLayer?.setFilter(Expression.eq(Expression.get("CODE_C"), cityCode.bigCity))
-                currentCode = cityCode.bigCity
+                cityCode.bigCity
             }
             Mode.PREF -> {
                 officeLayer?.setFilter(Expression.eq(Expression.get("CODE_P"), cityCode.pref))
                 cityShapeLayer?.setFilter(Expression.eq(Expression.get("CODE_P"), cityCode.pref))
-                currentCode = cityCode.pref
+                cityCode.pref
             }
         }
-        boundsViewModel.searchBounds(currentCode)
+        shapeViewModel.currentCode.value = currentCode
         return true
     }
 
     private fun nextMode(code: String, cityCode: String): Mode {
+        val currentCode = shapeViewModel.currentCode.value
         return if (currentCode == code) {
             if (cityCode.isNotEmpty()) {
                 Mode.BIG_CITY
