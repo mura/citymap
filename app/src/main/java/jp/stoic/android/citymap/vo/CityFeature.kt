@@ -2,7 +2,7 @@ package jp.stoic.android.citymap.vo
 
 import com.mapbox.geojson.Feature
 
-data class CityCode(
+data class CityFeature(
     val code: String,
     val bigCity: String,
     val pref: String,
@@ -11,7 +11,7 @@ data class CityCode(
     val prefName: String
 ) {
     companion object {
-        fun from(features: List<Feature>): CityCode {
+        fun from(features: List<Feature>): CityFeature {
             val feature = features
                 .filter { feature ->
                     val index = feature.geometry()?.type()?.indexOf("Polygon") ?: -1
@@ -42,7 +42,7 @@ data class CityCode(
             val prefName = feature.getProperty("N03_001").asString ?: ""
 
             feature.getProperty("N03_003").asString ?: ""
-            return CityCode(code, codec, codep, name, bigCityName, prefName)
+            return CityFeature(code, codec, codep, name, bigCityName, prefName)
         }
     }
 }

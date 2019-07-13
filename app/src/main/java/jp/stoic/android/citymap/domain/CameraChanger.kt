@@ -8,9 +8,7 @@ class CameraChanger(private val mapboxMap: MapboxMap) : Observer<TrackingMode> {
     private var trackingMode = TrackingMode.NONE
 
     override fun onChanged(mode: TrackingMode?) {
-        if (mode == null) {
-            return
-        }
+        mode ?: return
 
         if (!mapboxMap.locationComponent.isLocationComponentActivated ||
             !mapboxMap.locationComponent.isLocationComponentEnabled

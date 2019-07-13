@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class BoundsViewModel(app: Application) : CoroutineViewModel(app) {
-    private val boundsMap: MutableMap<String, CityBounds> = hashMapOf()
+    private val boundsMap: HashMap<String, CityBounds> = hashMapOf()
 
     private val _cityBounds = MutableLiveData<CityBounds>()
     val cityBounds: LiveData<CityBounds>

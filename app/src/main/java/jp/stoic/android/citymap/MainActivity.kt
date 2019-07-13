@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.mapboxsdk.Mapbox
@@ -12,6 +13,7 @@ import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
+import jp.stoic.android.citymap.domain.Analytics
 import jp.stoic.android.citymap.domain.CameraChanger
 import jp.stoic.android.citymap.domain.ShapeSelector
 import jp.stoic.android.citymap.lifecycle.MapLifecycleOwner
@@ -36,24 +38,34 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     private var currentStyle: Style? = null
 
     private lateinit var mapLifecycleOwner: MapLifecycleOwner
-    private lateinit var boundsViewModel: BoundsViewModel
-    private lateinit var cameraViewModel: CameraViewModel
-    private lateinit var shapeViewModel: ShapeViewModel
+
+    private val boundsViewModel: BoundsViewModel by lazy {
+        ViewModelProviders.of(this).get(BoundsViewModel::class.java)
+    }
+    private val cameraViewModel: CameraViewModel by lazy {
+        ViewModelProviders.of(this).get(CameraViewModel::class.java)
+    }
+    private val shapeViewModel: ShapeViewModel by lazy {
+        ViewModelProviders.of(this).get(ShapeViewModel::class.java)
+    }
+
+    private lateinit var analytics: Analytics
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(this, getString(R.string.mapbox_access_token))
         setContentView(R.layout.activity_main)
         job = Job()
+
+        analytics = Analytics(FirebaseAnalytics.getInstance(this))
+
         mapLifecycleOwner = MapLifecycleOwner().also {
             lifecycle.addObserver(it)
         }
 
-        boundsViewModel = ViewModelProviders.of(this).get(BoundsViewModel::class.java)
-        cameraViewModel = ViewModelProviders.of(this).get(CameraViewModel::class.java)
-        shapeViewModel = ViewModelProviders.of(this).get(ShapeViewModel::class.java)
-        shapeViewModel.currentCode.observe(this, Observer {
-            boundsViewModel.searchBounds(it)
+        shapeViewModel.selectedShape.observe(this, Observer {
+            analytics.clickShape(it)
+            boundsViewModel.searchBounds(it.code)
         })
 
         mapView.onCreate(savedInstanceState)
@@ -70,7 +82,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
                 mapLifecycleOwner.onStyleLoaded()
                 enableLocationComponent(mapboxMap, style)
                 mapboxMap.addOnMapClickListener(ShapeSelector(mapboxMap, style, shapeViewModel))
-                shapeViewModel.currentCode.value = "23100"
+                boundsViewModel.searchBounds("23100")
             }
         }
 

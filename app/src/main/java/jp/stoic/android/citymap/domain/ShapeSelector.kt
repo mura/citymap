@@ -7,7 +7,8 @@ import com.mapbox.mapboxsdk.style.expressions.Expression
 import com.mapbox.mapboxsdk.style.layers.FillLayer
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import jp.stoic.android.citymap.viewmodel.ShapeViewModel
-import jp.stoic.android.citymap.vo.CityCode
+import jp.stoic.android.citymap.vo.CityFeature
+import jp.stoic.android.citymap.vo.SelectedShape
 import timber.log.Timber
 
 class ShapeSelector(
@@ -23,59 +24,51 @@ class ShapeSelector(
     private var cityShapeLayer: FillLayer? = style.getLayerAs(SHAPE_LAYER_ID)
     private var officeLayer: SymbolLayer? = style.getLayerAs("office")
 
-    private enum class Mode {
-        CITY,
-        BIG_CITY,
-        PREF
-    }
-
     override fun onMapClick(point: LatLng): Boolean {
         val screenPoint = mapboxMap.projection.toScreenLocation(point)
         val features = mapboxMap.queryRenderedFeatures(screenPoint, SHAPE_DATA_LAYER_ID)
         if (features.size == 0) {
             return false
         }
-        val cityCode = CityCode.from(features)
+        val cityFeature = CityFeature.from(features)
 
-        Timber.tag("onMapClick").d("$cityCode")
-        val currentCode = when (nextMode(cityCode.code, cityCode.bigCity)) {
-            Mode.CITY -> {
-                officeLayer?.setFilter(Expression.eq(Expression.get("CODE"), cityCode.code))
-                cityShapeLayer?.setFilter(Expression.eq(Expression.get("CODE"), cityCode.code))
-                cityCode.code
+        Timber.tag("onMapClick").d("$cityFeature")
+        val nextShape = nextShape(cityFeature)
+        when (nextShape.mode) {
+            SelectedShape.Mode.CITY -> {
+                officeLayer?.setFilter(Expression.eq(Expression.get("CODE"), cityFeature.code))
+                cityShapeLayer?.setFilter(Expression.eq(Expression.get("CODE"), cityFeature.code))
             }
-            Mode.BIG_CITY -> {
+            SelectedShape.Mode.BIG_CITY -> {
                 officeLayer?.setFilter(
                     Expression.any(
-                        Expression.eq(Expression.get("CODE"), cityCode.bigCity),
-                        Expression.eq(Expression.get("CODE_C"), cityCode.bigCity)
+                        Expression.eq(Expression.get("CODE"), cityFeature.bigCity),
+                        Expression.eq(Expression.get("CODE_C"), cityFeature.bigCity)
                     )
                 )
-                cityShapeLayer?.setFilter(Expression.eq(Expression.get("CODE_C"), cityCode.bigCity))
-                cityCode.bigCity
+                cityShapeLayer?.setFilter(Expression.eq(Expression.get("CODE_C"), cityFeature.bigCity))
             }
-            Mode.PREF -> {
-                officeLayer?.setFilter(Expression.eq(Expression.get("CODE_P"), cityCode.pref))
-                cityShapeLayer?.setFilter(Expression.eq(Expression.get("CODE_P"), cityCode.pref))
-                cityCode.pref
+            SelectedShape.Mode.PREF -> {
+                officeLayer?.setFilter(Expression.eq(Expression.get("CODE_P"), cityFeature.pref))
+                cityShapeLayer?.setFilter(Expression.eq(Expression.get("CODE_P"), cityFeature.pref))
             }
         }
-        shapeViewModel.currentCode.value = currentCode
+        shapeViewModel.selectedShape.value = nextShape
         return true
     }
 
-    private fun nextMode(code: String, cityCode: String): Mode {
-        val currentCode = shapeViewModel.currentCode.value
-        return if (currentCode == code) {
-            if (cityCode.isNotEmpty()) {
-                Mode.BIG_CITY
+    private fun nextShape(cityFeature: CityFeature): SelectedShape {
+        val currentShape = shapeViewModel.selectedShape.value
+        return if (currentShape?.code == cityFeature.code) {
+            if (cityFeature.bigCity.isNotEmpty()) {
+                SelectedShape.bigCity(cityFeature)
             } else {
-                Mode.PREF
+                SelectedShape.pref(cityFeature)
             }
-        } else if (currentCode == cityCode) {
-            Mode.PREF
+        } else if (currentShape?.code == cityFeature.bigCity) {
+            SelectedShape.pref(cityFeature)
         } else {
-            Mode.CITY
+            SelectedShape.city(cityFeature)
         }
     }
 }
