@@ -1,10 +1,15 @@
 package jp.stoic.android.citymap
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
+import com.google.android.material.navigation.NavigationView
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
@@ -28,7 +33,7 @@ import kotlinx.coroutines.Job
 import kotlin.coroutines.CoroutineContext
 
 
-class MainActivity : AppCompatActivity(), CoroutineScope {
+class MainActivity : AppCompatActivity(), CoroutineScope, NavigationView.OnNavigationItemSelectedListener {
     private lateinit var job: Job
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
@@ -93,6 +98,8 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 
             cameraViewModel.invertTrackingMode()
         }
+
+        navigationView.setNavigationItemSelectedListener(this)
     }
 
     @SuppressLint("MissingPermission")
@@ -118,6 +125,25 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         permissionsManager?.onRequestPermissionsResult(requestCode, permissions, grantResults)
         enableLocationComponent()
+    }
+
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.nav_home -> {
+                startActivity(Intent(this, OssLicensesMenuActivity::class.java))
+            }
+        }
+
+        drawerLayout.closeDrawer(GravityCompat.START)
+        return true
+    }
+
+    override fun onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
+        }
     }
 
     override fun onStart() {
