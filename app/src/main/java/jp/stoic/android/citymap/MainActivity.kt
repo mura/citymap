@@ -1,6 +1,5 @@
 package jp.stoic.android.citymap
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
@@ -8,18 +7,18 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.get
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
-import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
 import jp.stoic.android.citymap.domain.Analytics
 import jp.stoic.android.citymap.domain.CameraChanger
+import jp.stoic.android.citymap.domain.LocationFacade
 import jp.stoic.android.citymap.domain.ShapeSelector
 import jp.stoic.android.citymap.lifecycle.MapLifecycleOwner
 import jp.stoic.android.citymap.viewmodel.BoundsViewModel
@@ -38,21 +37,16 @@ class MainActivity : AppCompatActivity(), CoroutineScope, NavigationView.OnNavig
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
 
-    private var permissionsManager: PermissionsManager? = null
     private var mapboxMap: MapboxMap? = null
     private var currentStyle: Style? = null
 
     private lateinit var mapLifecycleOwner: MapLifecycleOwner
 
-    private val boundsViewModel: BoundsViewModel by lazy {
-        ViewModelProviders.of(this).get(BoundsViewModel::class.java)
-    }
-    private val cameraViewModel: CameraViewModel by lazy {
-        ViewModelProviders.of(this).get(CameraViewModel::class.java)
-    }
-    private val shapeViewModel: ShapeViewModel by lazy {
-        ViewModelProviders.of(this).get(ShapeViewModel::class.java)
-    }
+    private val locationFacade by lazy { LocationFacade(this) }
+
+    private val boundsViewModel: BoundsViewModel by lazy { ViewModelProviders.of(this).get() }
+    private val cameraViewModel: CameraViewModel by lazy { ViewModelProviders.of(this).get() }
+    private val shapeViewModel: ShapeViewModel by lazy { ViewModelProviders.of(this).get() }
 
     private lateinit var analytics: Analytics
 
@@ -85,7 +79,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope, NavigationView.OnNavig
             mapboxMap.setStyle("mapbox://styles/muracchi/cjw2rwfof0by31cox2yuck1j6") { style ->
                 this.currentStyle = style
                 mapLifecycleOwner.onStyleLoaded()
-                enableLocationComponent(mapboxMap, style)
+                locationFacade.onStyleLoaded(mapboxMap, style)
                 mapboxMap.addOnMapClickListener(ShapeSelector(mapboxMap, style, shapeViewModel))
                 boundsViewModel.searchBounds("23100")
             }
@@ -102,29 +96,9 @@ class MainActivity : AppCompatActivity(), CoroutineScope, NavigationView.OnNavig
         navigationView.setNavigationItemSelectedListener(this)
     }
 
-    @SuppressLint("MissingPermission")
-    private fun enableLocationComponent(mapboxMap: MapboxMap, style: Style) {
-        if (!PermissionsManager.areLocationPermissionsGranted(this)) {
-            return
-        }
-
-        mapboxMap.locationComponent.activateLocationComponent(
-            LocationComponentActivationOptions.builder(this, style).build()
-        )
-        mapboxMap.locationComponent.isLocationComponentEnabled = true
-        cameraViewModel.trackingMode.value = TrackingMode.TRACKING
-    }
-
-    private fun enableLocationComponent() {
-        val mapboxMap = this.mapboxMap ?: return
-        val style = this.currentStyle ?: return
-        enableLocationComponent(mapboxMap, style)
-    }
-
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        permissionsManager?.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        enableLocationComponent()
+        locationFacade.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -154,18 +128,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope, NavigationView.OnNavig
     override fun onResume() {
         super.onResume()
         mapView.onResume()
-
-        if (!PermissionsManager.areLocationPermissionsGranted(this)) {
-            permissionsManager = PermissionsManager(object : PermissionsListener {
-                override fun onExplanationNeeded(permissionsToExplain: MutableList<String>?) {
-                }
-
-                override fun onPermissionResult(granted: Boolean) {
-                }
-
-            })
-            permissionsManager?.requestLocationPermissions(this)
-        }
+        locationFacade.onResume()
     }
 
     override fun onPause() {
@@ -189,8 +152,8 @@ class MainActivity : AppCompatActivity(), CoroutineScope, NavigationView.OnNavig
         super.onDestroy()
     }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
+    override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        mapView.onSaveInstanceState(outState ?: Bundle())
+        mapView.onSaveInstanceState(outState)
     }
 }

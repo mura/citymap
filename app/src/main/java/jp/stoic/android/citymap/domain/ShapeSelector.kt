@@ -53,7 +53,7 @@ class ShapeSelector(
                 cityShapeLayer?.setFilter(Expression.eq(Expression.get("CODE_P"), cityFeature.pref))
             }
         }
-        shapeViewModel.selectedShape.value = nextShape
+        shapeViewModel.setShape(nextShape)
         return true
     }
 

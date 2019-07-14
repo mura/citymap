@@ -1,8 +1,10 @@
 package jp.stoic.android.citymap.viewmodel
 
 import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import jp.stoic.android.citymap.vo.CityBounds
@@ -10,7 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class BoundsViewModel(app: Application) : CoroutineViewModel(app) {
+class BoundsViewModel(app: Application) : AndroidViewModel(app) {
     private val boundsMap: HashMap<String, CityBounds> = hashMapOf()
 
     private val _cityBounds = MutableLiveData<CityBounds>()
@@ -26,7 +28,7 @@ class BoundsViewModel(app: Application) : CoroutineViewModel(app) {
             return
         }
 
-        launch {
+        viewModelScope.launch {
             val cityBounds = withContext(Dispatchers.Default) {
                 val typeToken = object : TypeToken<List<CityBounds>>() {}
                 val reader = getApplication<Application>().assets.open("bounds.json").bufferedReader()
