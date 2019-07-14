@@ -2,9 +2,14 @@ package jp.stoic.android.citymap.vo
 
 data class SelectedShape(val code: String, val name: String, val mode: Mode) {
     companion object {
-        fun city(cityFeature: CityFeature) = SelectedShape(
-            cityFeature.code, cityFeature.name, Mode.CITY
-        )
+        fun city(cityFeature: CityFeature): SelectedShape {
+            val name = if (cityFeature.bigCity.isNotEmpty()) {
+                cityFeature.bigCityName + cityFeature.name
+            } else {
+                cityFeature.name
+            }
+            return SelectedShape(cityFeature.code, name, Mode.CITY)
+        }
 
         fun bigCity(cityFeature: CityFeature) = SelectedShape(
             cityFeature.bigCity, cityFeature.bigCityName, Mode.BIG_CITY

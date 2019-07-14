@@ -22,12 +22,14 @@ import jp.stoic.android.citymap.domain.ShapeSelector
 import jp.stoic.android.citymap.lifecycle.MapLifecycleOwner
 import jp.stoic.android.citymap.viewmodel.BoundsViewModel
 import jp.stoic.android.citymap.viewmodel.CameraViewModel
+import jp.stoic.android.citymap.viewmodel.HistoryViewModel
 import jp.stoic.android.citymap.viewmodel.ShapeViewModel
 import jp.stoic.android.citymap.vo.TrackingMode
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import timber.log.Timber
 import kotlin.coroutines.CoroutineContext
 
 
@@ -46,6 +48,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope, NavigationView.OnNavig
     private val boundsViewModel: BoundsViewModel by viewModels()
     private val cameraViewModel: CameraViewModel by viewModels()
     private val shapeViewModel: ShapeViewModel by viewModels()
+    private val historyViewModel: HistoryViewModel by viewModels()
 
     private lateinit var analytics: Analytics
 
@@ -63,7 +66,12 @@ class MainActivity : AppCompatActivity(), CoroutineScope, NavigationView.OnNavig
 
         shapeViewModel.selectedShape.observe(this, Observer {
             analytics.clickShape(it)
+            historyViewModel.insert(it)
             boundsViewModel.searchBounds(it.code)
+        })
+
+        historyViewModel.history.observe(this, Observer {
+            Timber.d("History: $it")
         })
 
         mapView.onCreate(savedInstanceState)
