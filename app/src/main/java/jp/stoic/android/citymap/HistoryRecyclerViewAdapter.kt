@@ -1,18 +1,16 @@
 package jp.stoic.android.citymap
 
-
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import jp.stoic.android.citymap.HistoryFragment.OnListFragmentInteractionListener
-import jp.stoic.android.citymap.dummy.DummyContent.DummyItem
 import jp.stoic.android.citymap.room.History
 import kotlinx.android.synthetic.main.fragment_history.view.*
 
 /**
- * [RecyclerView.Adapter] that can display a [DummyItem] and makes a call to the
+ * [RecyclerView.Adapter] that can display a [History] and makes a call to the
  * specified [OnListFragmentInteractionListener].
  * TODO: Replace the implementation with code for your data type.
  */
