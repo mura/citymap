@@ -3,11 +3,10 @@ package jp.stoic.android.citymap
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.get
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -44,9 +43,9 @@ class MainActivity : AppCompatActivity(), CoroutineScope, NavigationView.OnNavig
 
     private val locationFacade by lazy { LocationFacade(this) }
 
-    private val boundsViewModel: BoundsViewModel by lazy { ViewModelProviders.of(this).get() }
-    private val cameraViewModel: CameraViewModel by lazy { ViewModelProviders.of(this).get() }
-    private val shapeViewModel: ShapeViewModel by lazy { ViewModelProviders.of(this).get() }
+    private val boundsViewModel: BoundsViewModel by viewModels()
+    private val cameraViewModel: CameraViewModel by viewModels()
+    private val shapeViewModel: ShapeViewModel by viewModels()
 
     private lateinit var analytics: Analytics
 

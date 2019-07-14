@@ -1,9 +1,8 @@
 package jp.stoic.android.citymap.domain
 
 import android.annotation.SuppressLint
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.get
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.mapboxsdk.location.LocationComponent
@@ -17,7 +16,7 @@ class LocationFacade(private val activity: AppCompatActivity) {
     private var permissionsManager: PermissionsManager? = null
     private var locationComponent: LocationComponent? = null
     private var style: Style? = null
-    private val cameraViewModel: CameraViewModel by lazy { ViewModelProviders.of(activity).get() }
+    private val cameraViewModel: CameraViewModel by activity.viewModels()
 
     fun onResume() {
         if (PermissionsManager.areLocationPermissionsGranted(activity)) return
