@@ -101,6 +101,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope, NavigationView.OnNavig
         }
 
         navigationView.setNavigationItemSelectedListener(this)
+        OssLicensesMenuActivity.setActivityTitle(getString(R.string.activity_license_title))
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -110,7 +111,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope, NavigationView.OnNavig
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.nav_home -> {
+            R.id.nav_license -> {
                 startActivity(Intent(this, OssLicensesMenuActivity::class.java))
             }
         }
