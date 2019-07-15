@@ -1,12 +1,13 @@
-package jp.stoic.android.citymap
+package jp.stoic.android.citymap.ui
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import jp.stoic.android.citymap.HistoryFragment.OnListFragmentInteractionListener
+import jp.stoic.android.citymap.R
 import jp.stoic.android.citymap.room.History
+import jp.stoic.android.citymap.ui.HistoryFragment.OnListFragmentInteractionListener
 import kotlinx.android.synthetic.main.fragment_history.view.*
 
 /**

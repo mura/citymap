@@ -10,7 +10,6 @@ import androidx.lifecycle.Observer
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.maps.MapboxMap
@@ -90,14 +89,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope, NavigationView.OnNavig
                 mapboxMap.addOnMapClickListener(ShapeSelector(mapboxMap, style, shapeViewModel))
                 boundsViewModel.searchBounds("23100")
             }
-        }
-
-        myLocationImageButton.setOnClickListener {
-            if (!PermissionsManager.areLocationPermissionsGranted(this)) {
-                return@setOnClickListener
-            }
-
-            cameraViewModel.invertTrackingMode()
         }
 
         navigationView.setNavigationItemSelectedListener(this)

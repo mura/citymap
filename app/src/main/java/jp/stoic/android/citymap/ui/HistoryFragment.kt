@@ -1,4 +1,4 @@
-package jp.stoic.android.citymap
+package jp.stoic.android.citymap.ui
 
 import android.content.Context
 import android.os.Bundle
@@ -11,6 +11,7 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import jp.stoic.android.citymap.R
 import jp.stoic.android.citymap.room.History
 import jp.stoic.android.citymap.viewmodel.HistoryViewModel
 
