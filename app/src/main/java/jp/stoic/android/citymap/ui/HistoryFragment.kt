@@ -10,10 +10,10 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import jp.stoic.android.citymap.R
 import jp.stoic.android.citymap.room.History
 import jp.stoic.android.citymap.viewmodel.HistoryViewModel
+import kotlinx.android.synthetic.main.fragment_history_list.view.*
 
 /**
  * A fragment representing a list of Items.
@@ -42,18 +42,16 @@ class HistoryFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_history_list, container, false)
-
+        
         // Set the adapter
-        if (view is RecyclerView) {
-            with(view) {
-                layoutManager = when {
-                    columnCount <= 1 -> LinearLayoutManager(context)
-                    else -> GridLayoutManager(context, columnCount)
-                }
-                historyViewModel.history.observe(this@HistoryFragment, Observer {
-                    adapter = HistoryRecyclerViewAdapter(it, listener)
-                })
+        with(view.list) {
+            layoutManager = when {
+                columnCount <= 1 -> LinearLayoutManager(context)
+                else -> GridLayoutManager(context, columnCount)
             }
+            historyViewModel.history.observe(this@HistoryFragment, Observer {
+                adapter = HistoryRecyclerViewAdapter(it, listener)
+            })
         }
         return view
     }

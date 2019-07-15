@@ -7,6 +7,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.Observer
+import androidx.navigation.Navigation
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -102,6 +103,10 @@ class MainActivity : AppCompatActivity(), CoroutineScope, NavigationView.OnNavig
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.nav_home -> {
+                Navigation.findNavController(this, R.id.nav_host_fragment)
+                    .navigate(R.id.action_main_to_history)
+            }
             R.id.nav_license -> {
                 startActivity(Intent(this, OssLicensesMenuActivity::class.java))
             }
