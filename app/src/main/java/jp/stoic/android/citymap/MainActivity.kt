@@ -26,18 +26,10 @@ import jp.stoic.android.citymap.viewmodel.HistoryViewModel
 import jp.stoic.android.citymap.viewmodel.ShapeViewModel
 import jp.stoic.android.citymap.vo.TrackingMode
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import timber.log.Timber
-import kotlin.coroutines.CoroutineContext
 
 
-class MainActivity : AppCompatActivity(), CoroutineScope, NavigationView.OnNavigationItemSelectedListener {
-    private lateinit var job: Job
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main + job
-
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private var mapboxMap: MapboxMap? = null
     private var currentStyle: Style? = null
 
@@ -56,7 +48,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope, NavigationView.OnNavig
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(this, getString(R.string.mapbox_access_token))
         setContentView(R.layout.activity_main)
-        job = Job()
 
         analytics = Analytics(FirebaseAnalytics.getInstance(this))
 
@@ -96,7 +87,11 @@ class MainActivity : AppCompatActivity(), CoroutineScope, NavigationView.OnNavig
         OssLicensesMenuActivity.setActivityTitle(getString(R.string.activity_license_title))
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         locationFacade.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
@@ -151,7 +146,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope, NavigationView.OnNavig
     }
 
     override fun onDestroy() {
-        job.cancel()
         mapView.onDestroy()
         super.onDestroy()
     }
