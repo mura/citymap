@@ -19,7 +19,7 @@ class MapLifecycleOwner : LifecycleOwner, LifecycleObserver {
     fun onStart() {
         activityState = Lifecycle.State.STARTED
         if (mapState.isAtLeast(Lifecycle.State.STARTED)) {
-            lifecycleRegistry.markState(Lifecycle.State.STARTED)
+            lifecycleRegistry.currentState = Lifecycle.State.STARTED
         }
     }
 
@@ -27,7 +27,7 @@ class MapLifecycleOwner : LifecycleOwner, LifecycleObserver {
     fun onResume() {
         activityState = Lifecycle.State.RESUMED
         if (mapState.isAtLeast(Lifecycle.State.RESUMED)) {
-            lifecycleRegistry.markState(Lifecycle.State.RESUMED)
+            lifecycleRegistry.currentState = Lifecycle.State.RESUMED
         }
     }
 
@@ -35,7 +35,7 @@ class MapLifecycleOwner : LifecycleOwner, LifecycleObserver {
         if (mapState.isAtLeast(Lifecycle.State.RESUMED)) {
             mapState = Lifecycle.State.CREATED
             if (activityState.isAtLeast(Lifecycle.State.CREATED)) {
-                lifecycleRegistry.markState(Lifecycle.State.CREATED)
+                lifecycleRegistry.currentState = Lifecycle.State.CREATED
             }
         }
     }
@@ -43,7 +43,7 @@ class MapLifecycleOwner : LifecycleOwner, LifecycleObserver {
     fun onStyleLoaded() {
         mapState = Lifecycle.State.RESUMED
         if (activityState.isAtLeast(Lifecycle.State.RESUMED)) {
-            lifecycleRegistry.markState(Lifecycle.State.RESUMED)
+            lifecycleRegistry.currentState = Lifecycle.State.RESUMED
         }
     }
 
@@ -51,7 +51,7 @@ class MapLifecycleOwner : LifecycleOwner, LifecycleObserver {
     fun onPause() {
         activityState = Lifecycle.State.STARTED
         if (mapState.isAtLeast(Lifecycle.State.STARTED)) {
-            lifecycleRegistry.markState(Lifecycle.State.STARTED)
+            lifecycleRegistry.currentState = Lifecycle.State.STARTED
         }
     }
 
@@ -59,7 +59,7 @@ class MapLifecycleOwner : LifecycleOwner, LifecycleObserver {
     fun onStop() {
         activityState = Lifecycle.State.CREATED
         if (mapState.isAtLeast(Lifecycle.State.CREATED)) {
-            lifecycleRegistry.markState(Lifecycle.State.CREATED)
+            lifecycleRegistry.currentState = Lifecycle.State.CREATED
         }
     }
 
@@ -68,7 +68,7 @@ class MapLifecycleOwner : LifecycleOwner, LifecycleObserver {
         activityState = Lifecycle.State.DESTROYED
         if (mapState.isAtLeast(Lifecycle.State.INITIALIZED)) {
             mapState = Lifecycle.State.DESTROYED
-            lifecycleRegistry.markState(Lifecycle.State.DESTROYED)
+            lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
         }
         source.lifecycle.removeObserver(this)
     }
