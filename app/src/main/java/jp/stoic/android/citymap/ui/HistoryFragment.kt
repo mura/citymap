@@ -5,13 +5,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import jp.stoic.android.citymap.R
-import jp.stoic.android.citymap.room.History
 import jp.stoic.android.citymap.viewmodel.HistoryViewModel
 import kotlinx.android.synthetic.main.fragment_history_list.view.*
 
@@ -24,8 +24,6 @@ class HistoryFragment : Fragment() {
 
     // TODO: Customize parameters
     private var columnCount = 1
-
-    private var listener: OnListFragmentInteractionListener? = null
 
     private val historyViewModel: HistoryViewModel by viewModels()
 
@@ -42,7 +40,7 @@ class HistoryFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_history_list, container, false)
-        
+
         // Set the adapter
         with(view.list) {
             layoutManager = when {
@@ -50,7 +48,7 @@ class HistoryFragment : Fragment() {
                 else -> GridLayoutManager(context, columnCount)
             }
             historyViewModel.history.observe(this@HistoryFragment, Observer {
-                adapter = HistoryRecyclerViewAdapter(it, listener)
+                adapter = HistoryRecyclerViewAdapter(it)
             })
         }
         return view
@@ -58,32 +56,16 @@ class HistoryFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        if (context is OnListFragmentInteractionListener) {
-            listener = context
-        } else {
-            // throw RuntimeException("$context must implement OnListFragmentInteractionListener")
+        if (activity is AppCompatActivity) {
+            (activity as AppCompatActivity).supportActionBar?.show()
         }
     }
 
     override fun onDetach() {
         super.onDetach()
-        listener = null
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     *
-     *
-     * See the Android Training lesson
-     * [Communicating with Other Fragments](http://developer.android.com/training/basics/fragments/communicating.html)
-     * for more information.
-     */
-    interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
-        fun onListFragmentInteraction(item: History?)
+        if (activity is AppCompatActivity) {
+            (activity as AppCompatActivity).supportActionBar?.hide()
+        }
     }
 
     companion object {

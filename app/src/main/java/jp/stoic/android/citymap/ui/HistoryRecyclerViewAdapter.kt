@@ -7,7 +7,6 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import jp.stoic.android.citymap.R
 import jp.stoic.android.citymap.room.History
-import jp.stoic.android.citymap.ui.HistoryFragment.OnListFragmentInteractionListener
 import kotlinx.android.synthetic.main.fragment_history.view.*
 
 /**
@@ -16,20 +15,8 @@ import kotlinx.android.synthetic.main.fragment_history.view.*
  * TODO: Replace the implementation with code for your data type.
  */
 class HistoryRecyclerViewAdapter(
-    private val mValues: List<History>,
-    private val mListener: OnListFragmentInteractionListener?
+    private val mValues: List<History>
 ) : RecyclerView.Adapter<HistoryRecyclerViewAdapter.ViewHolder>() {
-
-    private val mOnClickListener: View.OnClickListener
-
-    init {
-        mOnClickListener = View.OnClickListener { v ->
-            val item = v.tag as History
-            // Notify the active callbacks interface (the activity, if the fragment is attached to
-            // one) that an item has been selected.
-            mListener?.onListFragmentInteraction(item)
-        }
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -41,18 +28,13 @@ class HistoryRecyclerViewAdapter(
         val item = mValues[position]
         holder.mIdView.text = item.code
         holder.mContentView.text = item.name
-
-        with(holder.mView) {
-            tag = item
-            setOnClickListener(mOnClickListener)
-        }
     }
 
     override fun getItemCount(): Int = mValues.size
 
-    inner class ViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
-        val mIdView: TextView = mView.item_number
-        val mContentView: TextView = mView.content
+    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val mIdView: TextView = view.item_number
+        val mContentView: TextView = view.content
 
         override fun toString(): String {
             return super.toString() + " '" + mContentView.text + "'"
