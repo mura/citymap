@@ -38,6 +38,7 @@ dependencies {
 
     // AppCompat
     implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.core:core:1.2.0'
     implementation 'androidx.core:core-ktx:1.2.0'
     implementation 'androidx.activity:activity:1.1.0'
     implementation 'androidx.activity:activity-ktx:1.1.0'
@@ -57,8 +58,8 @@ dependencies {
     kapt "androidx.room:room-compiler:$versions.room"
     // Navigation
     implementation "androidx.navigation:navigation-fragment:$versions.navigation"
-    implementation "androidx.navigation:navigation-ui:$versions.navigation"
     implementation "androidx.navigation:navigation-fragment-ktx:$versions.navigation"
+    implementation "androidx.navigation:navigation-ui:$versions.navigation"
     implementation "androidx.navigation:navigation-ui-ktx:$versions.navigation"
     // Material Design
     implementation 'com.google.android.material:material:1.1.0'
