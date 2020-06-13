@@ -5,11 +5,11 @@ buildscript {
             'compileSdk': 29,
             'minSdk'    : 21,
             'targetSdk' : 29,
-            'kotlin'    : '1.3.71',
+            'kotlin'    : '1.3.72',
             'coroutines': '1.3.4',
             'lifecycle' : '2.2.0',
             'room'      : '2.2.5',
-            'navigation': '2.2.1'
+            'navigation': '2.2.2'
     ]
     repositories {
         google()
@@ -17,7 +17,7 @@ buildscript {
         maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.2'
+        classpath 'com.android.tools.build:gradle:4.0.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
