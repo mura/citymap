@@ -1,8 +1,9 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
-apply plugin: 'com.google.android.gms.oss-licenses-plugin'
+apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
+apply plugin: 'com.google.android.gms.oss-licenses-plugin'
 
 android {
     compileSdkVersion versions.compileSdk
@@ -10,11 +11,19 @@ android {
         applicationId "jp.stoic.android.citymap"
         minSdkVersion versions.minSdk
         targetSdkVersion versions.targetSdk
-        versionCode 15
-        versionName "0.3.0"
+        versionCode 16
+        versionName "0.4.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
+        debug {
+            minifyEnabled true
+            firebaseCrashlytics {
+                // If you don't need crash reporting for your debug build,
+                // you can speed up your build by disabling mapping file uploading.
+                mappingFileUploadEnabled false
+            }
+        }
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -58,9 +67,12 @@ dependencies {
 
     // Google Play Services
     implementation 'com.google.android.play:core:1.10.0'
-    implementation 'com.google.firebase:firebase-crashlytics-ktx:18.0.1'
-    implementation 'com.google.firebase:firebase-analytics-ktx:19.0.0'
     implementation 'com.google.android.gms:play-services-oss-licenses:17.0.0'
+
+    // Firebase
+    implementation platform('com.google.firebase:firebase-bom:28.1.0')
+    implementation 'com.google.firebase:firebase-crashlytics-ktx'
+    implementation 'com.google.firebase:firebase-analytics-ktx'
 
     implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:9.6.1'
 
@@ -70,5 +82,3 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.3.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 }
-
-apply plugin: 'com.google.gms.google-services'
