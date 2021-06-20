@@ -8,12 +8,10 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import jp.stoic.android.citymap.R
+import jp.stoic.android.citymap.databinding.FragmentHistoryListBinding
 import jp.stoic.android.citymap.viewmodel.HistoryViewModel
-import kotlinx.android.synthetic.main.fragment_history_list.view.*
 
 /**
  * A fragment representing a list of Items.
@@ -25,6 +23,7 @@ class HistoryFragment : Fragment() {
     // TODO: Customize parameters
     private var columnCount = 1
 
+    private var binding: FragmentHistoryListBinding? = null
     private val historyViewModel: HistoryViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,22 +35,27 @@ class HistoryFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_history_list, container, false)
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentHistoryListBinding.inflate(inflater, container, false)
+        val view = binding!!.root
 
         // Set the adapter
-        with(view.list) {
+        with(view) {
             layoutManager = when {
                 columnCount <= 1 -> LinearLayoutManager(context)
                 else -> GridLayoutManager(context, columnCount)
             }
-            historyViewModel.history.observe(this@HistoryFragment, Observer {
+            historyViewModel.history.observe(viewLifecycleOwner, {
                 adapter = HistoryRecyclerViewAdapter(it)
             })
         }
         return view
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
     }
 
     override fun onAttach(context: Context) {

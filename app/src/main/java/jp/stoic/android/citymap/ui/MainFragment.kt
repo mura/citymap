@@ -7,17 +7,22 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.mapbox.android.core.permissions.PermissionsManager
-import jp.stoic.android.citymap.R
+import jp.stoic.android.citymap.databinding.FragmentMainBinding
 import jp.stoic.android.citymap.viewmodel.CameraViewModel
-import kotlinx.android.synthetic.main.fragment_main.view.*
 
 class MainFragment : Fragment() {
+    private var binding: FragmentMainBinding? = null
     private val cameraViewModel: CameraViewModel by activityViewModels()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_main, container, false)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentMainBinding.inflate(inflater, container, false)
+        val view = binding!!.root
 
-        view.myLocationImageButton.setOnClickListener {
+        binding?.myLocationImageButton?.setOnClickListener {
             val context = context ?: return@setOnClickListener
             if (!PermissionsManager.areLocationPermissionsGranted(context)) {
                 return@setOnClickListener
@@ -27,5 +32,10 @@ class MainFragment : Fragment() {
         }
 
         return view
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
     }
 }

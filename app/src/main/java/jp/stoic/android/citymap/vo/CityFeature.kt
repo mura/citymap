@@ -41,7 +41,6 @@ data class CityFeature(
             }
             val prefName = feature.getProperty("N03_001").asString ?: ""
 
-            feature.getProperty("N03_003").asString ?: ""
             return CityFeature(code, codec, codep, name, bigCityName, prefName)
         }
     }

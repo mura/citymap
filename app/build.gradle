@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.android.gms.oss-licenses-plugin'
 apply plugin: 'com.google.firebase.crashlytics'
@@ -24,57 +23,50 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
-}
-
-repositories {
-    mavenCentral()
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$versions.kotlin"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$versions.kotlin"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$versions.coroutines"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$versions.coroutines"
 
     // AppCompat
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.core:core:1.3.1'
-    implementation 'androidx.core:core-ktx:1.3.1'
-    implementation 'androidx.activity:activity:1.1.0'
-    implementation 'androidx.activity:activity-ktx:1.1.0'
-    implementation 'androidx.fragment:fragment:1.2.5'
-    implementation 'androidx.fragment:fragment-ktx:1.2.5'
+    implementation 'androidx.appcompat:appcompat:1.3.0'
+    implementation 'androidx.core:core-ktx:1.5.0'
+    implementation 'androidx.activity:activity-ktx:1.2.3'
+    implementation 'androidx.fragment:fragment-ktx:1.3.5'
     // UI Widget
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
-    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
     // Lifecycle
-    implementation "androidx.lifecycle:lifecycle-extensions:$versions.lifecycle"
-    kapt "androidx.lifecycle:lifecycle-compiler:$versions.lifecycle"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$versions.lifecycle"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$versions.lifecycle"
+    implementation "androidx.lifecycle:lifecycle-common-java8:$versions.lifecycle"
     // Room
     implementation "androidx.room:room-runtime:$versions.room"
     implementation "androidx.room:room-ktx:$versions.room"
     kapt "androidx.room:room-compiler:$versions.room"
     // Navigation
-    implementation "androidx.navigation:navigation-fragment:$versions.navigation"
     implementation "androidx.navigation:navigation-fragment-ktx:$versions.navigation"
-    implementation "androidx.navigation:navigation-ui:$versions.navigation"
     implementation "androidx.navigation:navigation-ui-ktx:$versions.navigation"
     // Material Design
-    implementation 'com.google.android.material:material:1.2.1'
+    implementation 'com.google.android.material:material:1.3.0'
 
     // Google Play Services
-    implementation 'com.google.android.play:core:1.8.0'
-    implementation 'com.google.firebase:firebase-crashlytics-ktx:17.2.1'
-    implementation 'com.google.firebase:firebase-analytics-ktx:17.5.0'
+    implementation 'com.google.android.play:core:1.10.0'
+    implementation 'com.google.firebase:firebase-crashlytics-ktx:18.0.1'
+    implementation 'com.google.firebase:firebase-analytics-ktx:19.0.0'
     implementation 'com.google.android.gms:play-services-oss-licenses:17.0.0'
 
-    implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:9.5.0'
+    implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:9.6.1'
 
     implementation 'com.jakewharton.timber:timber:4.7.1'
 
-    testImplementation 'junit:junit:4.13'
+    testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test:runner:1.3.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 }

@@ -15,6 +15,7 @@ import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
+import jp.stoic.android.citymap.databinding.ActivityMainBinding
 import jp.stoic.android.citymap.domain.Analytics
 import jp.stoic.android.citymap.domain.CameraChanger
 import jp.stoic.android.citymap.domain.LocationFacade
@@ -25,7 +26,6 @@ import jp.stoic.android.citymap.viewmodel.CameraViewModel
 import jp.stoic.android.citymap.viewmodel.HistoryViewModel
 import jp.stoic.android.citymap.viewmodel.ShapeViewModel
 import jp.stoic.android.citymap.vo.TrackingMode
-import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
 
 
@@ -33,6 +33,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var mapboxMap: MapboxMap? = null
     private var currentStyle: Style? = null
 
+    private lateinit var binding: ActivityMainBinding
     private lateinit var mapLifecycleOwner: MapLifecycleOwner
 
     private val locationFacade by lazy { LocationFacade(this) }
@@ -47,7 +48,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(this, getString(R.string.mapbox_access_token))
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         analytics = Analytics(FirebaseAnalytics.getInstance(this))
 
@@ -65,8 +67,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             Timber.d("History: $it")
         })
 
-        mapView.onCreate(savedInstanceState)
-        mapView.getMapAsync { mapboxMap ->
+        binding.mapView.onCreate(savedInstanceState)
+        binding.mapView.getMapAsync { mapboxMap ->
             this.mapboxMap = mapboxMap
             cameraViewModel.trackingMode.observe(mapLifecycleOwner, CameraChanger(mapboxMap))
             boundsViewModel.cityBounds.observe(mapLifecycleOwner, Observer {
@@ -74,7 +76,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 mapboxMap.easeCamera(CameraUpdateFactory.newLatLngBounds(it.latLngBounds, 50))
             })
             mapLifecycleOwner.onStartStyleLoad()
-            mapboxMap.setStyle("mapbox://styles/muracchi/cjw2rwfof0by31cox2yuck1j6") { style ->
+            val styleBuilder = Style.Builder()
+                .fromUri("mapbox://styles/muracchi/cjw2rwfof0by31cox2yuck1j6")
+            mapboxMap.setStyle(styleBuilder) { style ->
                 this.currentStyle = style
                 mapLifecycleOwner.onStyleLoaded()
                 locationFacade.onStyleLoaded(mapboxMap, style)
@@ -83,7 +87,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
 
-        navigationView.setNavigationItemSelectedListener(this)
+        binding.navigationView.setNavigationItemSelectedListener(this)
         OssLicensesMenuActivity.setActivityTitle(getString(R.string.activity_license_title))
     }
 
@@ -107,13 +111,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
 
-        drawerLayout.closeDrawer(GravityCompat.START)
+        binding.drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }
 
     override fun onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START)
+        if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
         } else {
             super.onBackPressed()
         }
@@ -121,37 +125,37 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onStart() {
         super.onStart()
-        mapView.onStart()
+        binding.mapView.onStart()
     }
 
     override fun onResume() {
         super.onResume()
-        mapView.onResume()
+        binding.mapView.onResume()
         locationFacade.onResume()
     }
 
     override fun onPause() {
         super.onPause()
-        mapView.onPause()
+        binding.mapView.onPause()
     }
 
     override fun onStop() {
         super.onStop()
-        mapView.onStop()
+        binding.mapView.onStop()
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
-        mapView.onLowMemory()
+        binding.mapView.onLowMemory()
     }
 
     override fun onDestroy() {
-        mapView.onDestroy()
+        binding.mapView.onDestroy()
         super.onDestroy()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        mapView.onSaveInstanceState(outState)
+        binding.mapView.onSaveInstanceState(outState)
     }
 }

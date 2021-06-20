@@ -1,13 +1,10 @@
 package jp.stoic.android.citymap.ui
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import jp.stoic.android.citymap.R
+import jp.stoic.android.citymap.databinding.FragmentHistoryBinding
 import jp.stoic.android.citymap.room.History
-import kotlinx.android.synthetic.main.fragment_history.view.*
 
 /**
  * [RecyclerView.Adapter] that can display a [History] and makes a call to the
@@ -19,25 +16,31 @@ class HistoryRecyclerViewAdapter(
 ) : RecyclerView.Adapter<HistoryRecyclerViewAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.fragment_history, parent, false)
-        return ViewHolder(view)
+        return viewHolder(parent)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = mValues[position]
-        holder.mIdView.text = item.code
-        holder.mContentView.text = item.name
+        holder.bind(item)
     }
 
     override fun getItemCount(): Int = mValues.size
 
-    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val mIdView: TextView = view.item_number
-        val mContentView: TextView = view.content
+    inner class ViewHolder(private val binding: FragmentHistoryBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(item: History) {
+            binding.itemNumber.text = item.code
+            binding.content.text = item.name
+        }
 
         override fun toString(): String {
-            return super.toString() + " '" + mContentView.text + "'"
+            return super.toString() + " '" + binding.content.text + "'"
         }
+    }
+
+    private fun viewHolder(parent: ViewGroup): ViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        return ViewHolder(FragmentHistoryBinding.inflate(inflater, parent, false))
     }
 }
