@@ -6,3 +6,5 @@
 *.prj
 *.shp
 *.shx
+!package-lock.json
+!package.json
