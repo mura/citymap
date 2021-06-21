@@ -2,14 +2,17 @@
 
 buildscript {
     ext.versions = [
-            'compileSdk': 30,
-            'minSdk'    : 21,
-            'targetSdk' : 30,
-            'kotlin'    : '1.5.10',
-            'coroutines': '1.5.0-native-mt',
-            'lifecycle' : '2.3.1',
-            'room'      : '2.3.0',
-            'navigation': '2.3.5'
+            'compileSdk'         : 30,
+            'minSdk'             : 21,
+            'targetSdk'          : 30,
+            'kotlin'             : '1.5.10',
+            'coroutines'         : '1.5.0-native-mt',
+            'dagger_hilt'        : '2.37',
+            'androidx_lifecycle' : '2.3.1',
+            'androidx_room'      : '2.3.0',
+            'androidx_navigation': '2.3.5',
+            'androidx_paging'    : '3.0.0',
+            'androidx_hilt'      : '1.0.0'
     ]
     repositories {
         google()
@@ -23,7 +26,8 @@ buildscript {
         classpath 'com.google.gms:google-services:4.3.8'
         classpath 'com.google.android.gms:oss-licenses-plugin:0.10.4'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.7.0'
-        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$versions.navigation"
+        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$versions.androidx_navigation"
+        classpath "com.google.dagger:hilt-android-gradle-plugin:$versions.dagger_hilt"
     }
 }
 
