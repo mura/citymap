@@ -41,13 +41,13 @@ class HistoryFragment : Fragment() {
         val view = binding!!.root
 
         // Set the adapter
-        with(view) {
-            layoutManager = when {
+        binding?.list?.also { list ->
+            list.layoutManager = when {
                 columnCount <= 1 -> LinearLayoutManager(context)
                 else -> GridLayoutManager(context, columnCount)
             }
             historyViewModel.history.observe(viewLifecycleOwner, {
-                adapter = HistoryRecyclerViewAdapter(it)
+                list.adapter = HistoryRecyclerViewAdapter(it)
             })
         }
         return view

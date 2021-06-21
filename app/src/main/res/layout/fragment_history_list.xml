@@ -9,4 +9,4 @@
         app:layoutManager="LinearLayoutManager"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:listitem="@layout/fragment_history"
-        tools:context=".ui.HistoryFragment"/>
+        tools:context=".ui.HistoryFragment" />

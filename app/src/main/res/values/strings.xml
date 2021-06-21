@@ -17,5 +17,7 @@
     <string name="menu_history">履歴</string>
     <string name="menu_license">OSSライセンス</string>
 
+    <string name="fragment_history">履歴</string>
+
     <string name="activity_license_title">オープンソースライセンス</string>
 </resources>

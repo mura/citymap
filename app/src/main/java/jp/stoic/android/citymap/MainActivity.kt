@@ -3,11 +3,15 @@ package jp.stoic.android.citymap
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import androidx.activity.viewModels
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.setupWithNavController
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -42,6 +46,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private val cameraViewModel: CameraViewModel by viewModels()
     private val shapeViewModel: ShapeViewModel by viewModels()
     private val historyViewModel: HistoryViewModel by viewModels()
+
+    private val navHostController by lazy {
+        Navigation.findNavController(this, R.id.nav_host_fragment)
+    }
 
     private lateinit var analytics: Analytics
 
@@ -87,6 +95,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
 
+        supportFragmentManager.findFragmentById(R.id.nav_host_fragment)?.let {
+            val navController = it.findNavController()
+            binding.toolbarLayout.toolbar.setupWithNavController(navController)
+            navController.addOnDestinationChangedListener { _, destination, _ ->
+                when (destination.id) {
+                    R.id.mainFragment -> binding.hideToolbar()
+                    R.id.historyFragment -> binding.showToolbar(R.string.fragment_history)
+                }
+            }
+        }
         binding.navigationView.setNavigationItemSelectedListener(this)
         OssLicensesMenuActivity.setActivityTitle(getString(R.string.activity_license_title))
     }
@@ -103,8 +121,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.nav_home -> {
-                Navigation.findNavController(this, R.id.nav_host_fragment)
-                    .navigate(R.id.action_main_to_history)
+                navHostController.navigate(R.id.action_main_to_history)
             }
             R.id.nav_license -> {
                 startActivity(Intent(this, OssLicensesMenuActivity::class.java))
@@ -157,5 +174,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         binding.mapView.onSaveInstanceState(outState)
+    }
+
+    private fun ActivityMainBinding.hideToolbar() {
+        toolbarLayout.root.visibility = View.GONE
+    }
+
+    private fun ActivityMainBinding.showToolbar(@StringRes resId: Int) {
+        toolbarLayout.root.visibility = View.VISIBLE
+        toolbarLayout.toolbar.setTitle(resId)
     }
 }

@@ -9,7 +9,7 @@
         tools:context=".MainActivity"
         tools:openDrawer="start">
 
-    <FrameLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -21,17 +21,29 @@
                 app:mapbox_cameraTargetLng="136.8818636"
                 app:mapbox_cameraZoom="11"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+                app:layout_constraintBottom_toBottomOf="parent" />
 
-        <fragment
+        <include
+                android:id="@+id/toolbarLayout"
+                android:visibility="gone"
+                layout="@layout/layout_app_bar"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent" />
+
+        <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/nav_host_fragment"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="0dp"
                 android:name="androidx.navigation.fragment.NavHostFragment"
                 app:navGraph="@navigation/navigation_graph"
-                app:defaultNavHost="true"/>
+                app:defaultNavHost="true"
+                app:layout_constraintTop_toBottomOf="@id/toolbarLayout"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
 
-    </FrameLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.navigation.NavigationView
             android:id="@+id/navigationView"
@@ -39,6 +51,6 @@
             android:layout_height="match_parent"
             app:headerLayout="@layout/nav_header_main"
             app:menu="@menu/activity_main_drawer"
-            android:layout_gravity="start"/>
+            android:layout_gravity="start" />
 
 </androidx.drawerlayout.widget.DrawerLayout>
