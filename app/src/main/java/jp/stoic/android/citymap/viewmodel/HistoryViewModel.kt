@@ -1,19 +1,21 @@
 package jp.stoic.android.citymap.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.room.Room
+import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.stoic.android.citymap.room.History
 import jp.stoic.android.citymap.room.HistoryDatabase
 import jp.stoic.android.citymap.vo.SelectedShape
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class HistoryViewModel(application: Application) : AndroidViewModel(application) {
-    private val db = Room.databaseBuilder(application, HistoryDatabase::class.java, "history").build()
+@HiltViewModel
+class HistoryViewModel @Inject constructor(
+    private val db: HistoryDatabase
+) : ViewModel() {
 
     val history: LiveData<List<History>>
         get() = db.historyDao().selectAll()

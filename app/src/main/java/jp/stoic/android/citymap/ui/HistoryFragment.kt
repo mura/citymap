@@ -1,16 +1,15 @@
 package jp.stoic.android.citymap.ui
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import jp.stoic.android.citymap.databinding.FragmentHistoryListBinding
+import dagger.hilt.android.AndroidEntryPoint
+import jp.stoic.android.citymap.databinding.FragmentHistoryBinding
 import jp.stoic.android.citymap.viewmodel.HistoryViewModel
 
 /**
@@ -18,12 +17,13 @@ import jp.stoic.android.citymap.viewmodel.HistoryViewModel
  * Activities containing this fragment MUST implement the
  * [HistoryFragment.OnListFragmentInteractionListener] interface.
  */
+@AndroidEntryPoint
 class HistoryFragment : Fragment() {
 
     // TODO: Customize parameters
     private var columnCount = 1
 
-    private var binding: FragmentHistoryListBinding? = null
+    private var binding: FragmentHistoryBinding? = null
     private val historyViewModel: HistoryViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,7 +37,7 @@ class HistoryFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        binding = FragmentHistoryListBinding.inflate(inflater, container, false)
+        binding = FragmentHistoryBinding.inflate(inflater, container, false)
         val view = binding!!.root
 
         // Set the adapter
@@ -56,20 +56,6 @@ class HistoryFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         binding = null
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (activity is AppCompatActivity) {
-            (activity as AppCompatActivity).supportActionBar?.show()
-        }
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        if (activity is AppCompatActivity) {
-            (activity as AppCompatActivity).supportActionBar?.hide()
-        }
     }
 
     companion object {

@@ -3,7 +3,7 @@ package jp.stoic.android.citymap.ui
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import jp.stoic.android.citymap.databinding.FragmentHistoryBinding
+import jp.stoic.android.citymap.databinding.ItemHistoryBinding
 import jp.stoic.android.citymap.room.History
 
 /**
@@ -26,7 +26,7 @@ class HistoryRecyclerViewAdapter(
 
     override fun getItemCount(): Int = mValues.size
 
-    inner class ViewHolder(private val binding: FragmentHistoryBinding) :
+    inner class ViewHolder(private val binding: ItemHistoryBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: History) {
@@ -41,6 +41,6 @@ class HistoryRecyclerViewAdapter(
 
     private fun viewHolder(parent: ViewGroup): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        return ViewHolder(FragmentHistoryBinding.inflate(inflater, parent, false))
+        return ViewHolder(ItemHistoryBinding.inflate(inflater, parent, false))
     }
 }

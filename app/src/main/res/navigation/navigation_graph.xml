@@ -12,11 +12,11 @@
             tools:layout="@layout/fragment_main">
         <action
                 android:id="@+id/action_main_to_history"
-                app:destination="@id/historyFragment"/>
+                app:destination="@id/historyFragment" />
     </fragment>
     <fragment
             android:id="@+id/historyFragment"
             android:name="jp.stoic.android.citymap.ui.HistoryFragment"
             android:label="fragment_history_list"
-            tools:layout="@layout/fragment_history_list"/>
+            tools:layout="@layout/fragment_history" />
 </navigation>

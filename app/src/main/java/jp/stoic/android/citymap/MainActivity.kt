@@ -19,6 +19,7 @@ import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
+import dagger.hilt.android.AndroidEntryPoint
 import jp.stoic.android.citymap.databinding.ActivityMainBinding
 import jp.stoic.android.citymap.domain.Analytics
 import jp.stoic.android.citymap.domain.CameraChanger
@@ -32,7 +33,7 @@ import jp.stoic.android.citymap.viewmodel.ShapeViewModel
 import jp.stoic.android.citymap.vo.TrackingMode
 import timber.log.Timber
 
-
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private var mapboxMap: MapboxMap? = null
     private var currentStyle: Style? = null
