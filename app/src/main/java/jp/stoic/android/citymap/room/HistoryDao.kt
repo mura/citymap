@@ -1,6 +1,6 @@
 package jp.stoic.android.citymap.room
 
-import androidx.lifecycle.LiveData
+import androidx.paging.PagingSource
 import androidx.room.*
 
 @Dao
@@ -9,7 +9,7 @@ interface HistoryDao {
     fun create(history: History)
 
     @Query("SELECT * FROM History ORDER BY created DESC")
-    fun selectAll(): LiveData<List<History>>
+    fun allHistoryByCreated(): PagingSource<Int, History>
 
     @Update
     fun update(history: History)

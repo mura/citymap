@@ -8,7 +8,6 @@ import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
-import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
@@ -31,7 +30,6 @@ import jp.stoic.android.citymap.viewmodel.CameraViewModel
 import jp.stoic.android.citymap.viewmodel.HistoryViewModel
 import jp.stoic.android.citymap.viewmodel.ShapeViewModel
 import jp.stoic.android.citymap.vo.TrackingMode
-import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -66,21 +64,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             lifecycle.addObserver(it)
         }
 
-        shapeViewModel.selectedShape.observe(this, Observer {
+        shapeViewModel.selectedShape.observe(this, {
             analytics.clickShape(it)
             historyViewModel.insert(it)
             boundsViewModel.searchBounds(it.code)
-        })
-
-        historyViewModel.history.observe(this, Observer {
-            Timber.d("History: $it")
         })
 
         binding.mapView.onCreate(savedInstanceState)
         binding.mapView.getMapAsync { mapboxMap ->
             this.mapboxMap = mapboxMap
             cameraViewModel.trackingMode.observe(mapLifecycleOwner, CameraChanger(mapboxMap))
-            boundsViewModel.cityBounds.observe(mapLifecycleOwner, Observer {
+            boundsViewModel.cityBounds.observe(mapLifecycleOwner, {
                 cameraViewModel.trackingMode.value = TrackingMode.NONE
                 mapboxMap.easeCamera(CameraUpdateFactory.newLatLngBounds(it.latLngBounds, 50))
             })
