@@ -13,7 +13,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.google.android.material.navigation.NavigationView
-import com.google.firebase.analytics.FirebaseAnalytics
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.maps.MapboxMap
@@ -30,6 +29,7 @@ import jp.stoic.android.citymap.viewmodel.CameraViewModel
 import jp.stoic.android.citymap.viewmodel.HistoryViewModel
 import jp.stoic.android.citymap.viewmodel.ShapeViewModel
 import jp.stoic.android.citymap.vo.TrackingMode
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -50,15 +50,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         Navigation.findNavController(this, R.id.nav_host_fragment)
     }
 
-    private lateinit var analytics: Analytics
+    @Inject
+    lateinit var analytics: Analytics
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(this, getString(R.string.mapbox_access_token))
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        analytics = Analytics(FirebaseAnalytics.getInstance(this))
 
         mapLifecycleOwner = MapLifecycleOwner().also {
             lifecycle.addObserver(it)

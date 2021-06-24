@@ -2,6 +2,7 @@ package jp.stoic.android.citymap.module
 
 import android.app.Application
 import androidx.room.Room
+import com.google.firebase.analytics.FirebaseAnalytics
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,4 +20,7 @@ object ApplicationModule {
 
     @Provides
     fun assetRepository(app: Application) = AssetRepository(app)
+
+    @Provides
+    fun firebaseAnalytics(app: Application) = FirebaseAnalytics.getInstance(app)
 }
