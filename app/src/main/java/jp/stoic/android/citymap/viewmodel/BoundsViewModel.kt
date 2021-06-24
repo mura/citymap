@@ -1,18 +1,22 @@
 package jp.stoic.android.citymap.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import dagger.hilt.android.lifecycle.HiltViewModel
+import jp.stoic.android.citymap.repository.AssetRepository
 import jp.stoic.android.citymap.vo.CityBounds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
+import kotlin.collections.set
 
-class BoundsViewModel(app: Application) : AndroidViewModel(app) {
+@HiltViewModel
+class BoundsViewModel @Inject constructor(
+    private val assetRepository: AssetRepository
+) : ViewModel() {
     private val boundsMap: HashMap<String, CityBounds> = hashMapOf()
 
     private val _cityBounds = MutableLiveData<CityBounds>()
@@ -29,10 +33,8 @@ class BoundsViewModel(app: Application) : AndroidViewModel(app) {
         }
 
         viewModelScope.launch {
-            val cityBounds = withContext(Dispatchers.Default) {
-                val typeToken = object : TypeToken<List<CityBounds>>() {}
-                val reader = getApplication<Application>().assets.open("bounds.json").bufferedReader()
-                Gson().fromJson<List<CityBounds>>(reader, typeToken.type)
+            val cityBounds: List<CityBounds> = withContext(Dispatchers.Default) {
+                assetRepository.readBounds()
             }
 
             cityBounds.forEach {
