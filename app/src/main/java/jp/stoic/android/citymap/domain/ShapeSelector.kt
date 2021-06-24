@@ -32,30 +32,31 @@ class ShapeSelector(
         }
         val cityFeature = CityFeature.from(features)
 
-        Timber.tag("onMapClick").d("$cityFeature")
+        Timber.tag("ShapeSelector").d("$cityFeature")
         val nextShape = nextShape(cityFeature)
         when (nextShape.mode) {
             SelectedShape.Mode.CITY -> {
-                officeLayer?.setFilter(Expression.eq(Expression.get("CODE"), cityFeature.code))
-                cityShapeLayer?.setFilter(Expression.eq(Expression.get("CODE"), cityFeature.code))
+                officeLayer?.setFilter(eqCode(cityFeature.code))
+                cityShapeLayer?.setFilter(eqCode(cityFeature.code))
             }
             SelectedShape.Mode.BIG_CITY -> {
                 officeLayer?.setFilter(
-                    Expression.any(
-                        Expression.eq(Expression.get("CODE"), cityFeature.bigCity),
-                        Expression.eq(Expression.get("CODE_C"), cityFeature.bigCity)
-                    )
+                    Expression.any(eqCode(cityFeature.bigCity), eqCodeC(cityFeature.bigCity))
                 )
-                cityShapeLayer?.setFilter(Expression.eq(Expression.get("CODE_C"), cityFeature.bigCity))
+                cityShapeLayer?.setFilter(eqCodeC(cityFeature.bigCity))
             }
             SelectedShape.Mode.PREF -> {
-                officeLayer?.setFilter(Expression.eq(Expression.get("CODE_P"), cityFeature.pref))
-                cityShapeLayer?.setFilter(Expression.eq(Expression.get("CODE_P"), cityFeature.pref))
+                officeLayer?.setFilter(eqCodeP(cityFeature.pref))
+                cityShapeLayer?.setFilter(eqCodeP(cityFeature.pref))
             }
         }
         shapeViewModel.setShape(nextShape)
         return true
     }
+
+    private fun eqCode(code: String) = Expression.eq(Expression.get("CODE"), code)
+    private fun eqCodeC(code: String) = Expression.eq(Expression.get("CODE_C"), code)
+    private fun eqCodeP(code: String) = Expression.eq(Expression.get("CODE_P"), code)
 
     private fun nextShape(cityFeature: CityFeature): SelectedShape {
         val currentShape = shapeViewModel.selectedShape.value
