@@ -23,15 +23,14 @@ class HistoryFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = FragmentHistoryBinding.inflate(inflater, container, false)
-        val view = binding!!.root
 
         // Set the adapter
         val adapter = HistoryAdapter()
         binding?.list?.adapter = adapter
         lifecycleScope.launch {
-            viewModel.allHistory.collectLatest { adapter.submitData(it) }
+            viewModel.allHistory(10).collectLatest { adapter.submitData(it) }
         }
-        return view
+        return binding!!.root
     }
 
     override fun onDestroyView() {
