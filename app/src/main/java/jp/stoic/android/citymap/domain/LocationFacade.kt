@@ -9,14 +9,14 @@ import com.mapbox.mapboxsdk.location.LocationComponent
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
-import jp.stoic.android.citymap.viewmodel.CameraViewModel
+import jp.stoic.android.citymap.viewmodel.MainViewModel
 import jp.stoic.android.citymap.vo.TrackingMode
 
 class LocationFacade(private val activity: AppCompatActivity) {
     private var permissionsManager: PermissionsManager? = null
     private var locationComponent: LocationComponent? = null
     private var style: Style? = null
-    private val cameraViewModel: CameraViewModel by activity.viewModels()
+    private val mainViewModel: MainViewModel by activity.viewModels()
 
     fun onResume() {
         if (PermissionsManager.areLocationPermissionsGranted(activity)) return
@@ -32,7 +32,11 @@ class LocationFacade(private val activity: AppCompatActivity) {
         permissionsManager?.requestLocationPermissions(activity)
     }
 
-    fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         permissionsManager?.onRequestPermissionsResult(requestCode, permissions, grantResults)
         enableLocationComponent()
     }
@@ -57,8 +61,8 @@ class LocationFacade(private val activity: AppCompatActivity) {
         )
         locationComponent.isLocationComponentEnabled = true
 
-        if (cameraViewModel.trackingMode.value == null) {
-            cameraViewModel.trackingMode.value = TrackingMode.TRACKING
+        if (mainViewModel.trackingMode.value == null) {
+            mainViewModel.trackingMode.value = TrackingMode.TRACKING
         }
         return true
     }

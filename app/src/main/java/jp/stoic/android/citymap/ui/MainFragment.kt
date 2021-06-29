@@ -6,32 +6,24 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.mapbox.android.core.permissions.PermissionsManager
+import dagger.hilt.android.AndroidEntryPoint
 import jp.stoic.android.citymap.databinding.FragmentMainBinding
-import jp.stoic.android.citymap.viewmodel.CameraViewModel
+import jp.stoic.android.citymap.viewmodel.MainViewModel
 
+@AndroidEntryPoint
 class MainFragment : Fragment() {
     private var binding: FragmentMainBinding? = null
-    private val cameraViewModel: CameraViewModel by activityViewModels()
+    private val viewModel: MainViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentMainBinding.inflate(inflater, container, false)
-        val view = binding!!.root
-
-        binding?.myLocationImageButton?.setOnClickListener {
-            val context = context ?: return@setOnClickListener
-            if (!PermissionsManager.areLocationPermissionsGranted(context)) {
-                return@setOnClickListener
-            }
-
-            cameraViewModel.invertTrackingMode()
+        binding = FragmentMainBinding.inflate(inflater, container, false).also {
+            it.viewmodel = viewModel
         }
-
-        return view
+        return binding!!.root
     }
 
     override fun onDestroyView() {

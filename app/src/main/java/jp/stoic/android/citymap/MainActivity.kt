@@ -19,17 +19,13 @@ import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
 import dagger.hilt.android.AndroidEntryPoint
 import jp.stoic.android.citymap.databinding.ActivityMainBinding
-import jp.stoic.android.citymap.domain.Analytics
 import jp.stoic.android.citymap.domain.CameraChanger
 import jp.stoic.android.citymap.domain.LocationFacade
 import jp.stoic.android.citymap.domain.ShapeSelector
 import jp.stoic.android.citymap.lifecycle.MapLifecycleOwner
-import jp.stoic.android.citymap.viewmodel.BoundsViewModel
-import jp.stoic.android.citymap.viewmodel.CameraViewModel
-import jp.stoic.android.citymap.viewmodel.HistoryViewModel
+import jp.stoic.android.citymap.viewmodel.MainViewModel
 import jp.stoic.android.citymap.viewmodel.ShapeViewModel
 import jp.stoic.android.citymap.vo.TrackingMode
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -41,17 +37,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private val locationFacade by lazy { LocationFacade(this) }
 
-    private val boundsViewModel: BoundsViewModel by viewModels()
-    private val cameraViewModel: CameraViewModel by viewModels()
+    private val viewModel: MainViewModel by viewModels()
     private val shapeViewModel: ShapeViewModel by viewModels()
-    private val historyViewModel: HistoryViewModel by viewModels()
 
     private val navHostController by lazy {
         Navigation.findNavController(this, R.id.nav_host_fragment)
     }
-
-    @Inject
-    lateinit var analytics: Analytics
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,18 +54,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             lifecycle.addObserver(it)
         }
 
-        shapeViewModel.selectedShape.observe(this, {
-            analytics.clickShape(it)
-            historyViewModel.insert(it)
-            boundsViewModel.searchBounds(it.code)
-        })
+        shapeViewModel.selectedShape.observe(this, viewModel::onShapeSelected)
 
         binding.mapView.onCreate(savedInstanceState)
         binding.mapView.getMapAsync { mapboxMap ->
             this.mapboxMap = mapboxMap
-            cameraViewModel.trackingMode.observe(mapLifecycleOwner, CameraChanger(mapboxMap))
-            boundsViewModel.cityBounds.observe(mapLifecycleOwner, {
-                cameraViewModel.trackingMode.value = TrackingMode.NONE
+            viewModel.trackingMode.observe(mapLifecycleOwner, CameraChanger(mapboxMap))
+            viewModel.cityBounds.observe(mapLifecycleOwner, {
+                viewModel.trackingMode.value = TrackingMode.NONE
                 mapboxMap.easeCamera(CameraUpdateFactory.newLatLngBounds(it.latLngBounds, 50))
             })
             mapLifecycleOwner.onStartStyleLoad()
@@ -85,7 +72,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 mapLifecycleOwner.onStyleLoaded()
                 locationFacade.onStyleLoaded(mapboxMap, style)
                 mapboxMap.addOnMapClickListener(ShapeSelector(mapboxMap, style, shapeViewModel))
-                boundsViewModel.searchBounds("23100")
+                viewModel.searchBounds("23100")
             }
         }
 

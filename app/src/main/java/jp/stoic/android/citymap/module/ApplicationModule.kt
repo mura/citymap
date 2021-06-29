@@ -8,6 +8,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import jp.stoic.android.citymap.repository.AssetRepository
+import jp.stoic.android.citymap.repository.BoundsRepository
+import jp.stoic.android.citymap.repository.HistoryRepository
 import jp.stoic.android.citymap.room.HistoryDatabase
 
 @Module
@@ -20,6 +22,12 @@ object ApplicationModule {
 
     @Provides
     fun assetRepository(app: Application) = AssetRepository(app)
+
+    @Provides
+    fun boundsRepository(assetRepository: AssetRepository) = BoundsRepository(assetRepository)
+
+    @Provides
+    fun historyRepository(db: HistoryDatabase) = HistoryRepository(db)
 
     @Provides
     fun firebaseAnalytics(app: Application) = FirebaseAnalytics.getInstance(app)
