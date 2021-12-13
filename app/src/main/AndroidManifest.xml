@@ -4,10 +4,11 @@
         xmlns:tools="http://schemas.android.com/tools"
         package="jp.stoic.android.citymap">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
-    <dist:module dist:instant="true"/>
+    <dist:module dist:instant="true" />
 
     <application
             android:name=".App"
@@ -22,23 +23,25 @@
 
         <meta-data
                 android:name="google_analytics_adid_collection_enabled"
-                android:value="false"/>
+                android:value="false" />
 
-        <activity android:name=".MainActivity">
+        <activity
+                android:name=".MainActivity"
+                android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
         <activity
                 android:name="com.google.android.gms.oss.licenses.OssLicensesActivity"
-                android:theme="@style/AppTheme.DarkActionBar"/>
+                android:theme="@style/AppTheme.DarkActionBar" />
 
         <activity
                 android:name="com.google.android.gms.oss.licenses.OssLicensesMenuActivity"
-                android:theme="@style/AppTheme.DarkActionBar"/>
+                android:theme="@style/AppTheme.DarkActionBar" />
     </application>
 
 </manifest>

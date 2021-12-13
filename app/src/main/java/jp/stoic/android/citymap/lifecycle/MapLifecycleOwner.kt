@@ -1,30 +1,30 @@
 package jp.stoic.android.citymap.lifecycle
 
-import androidx.lifecycle.*
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
 
-class MapLifecycleOwner : LifecycleOwner, LifecycleObserver {
+class MapLifecycleOwner : LifecycleOwner, DefaultLifecycleObserver {
     private val lifecycleRegistry = LifecycleRegistry(this)
     private var activityState = Lifecycle.State.INITIALIZED
     private var mapState = Lifecycle.State.INITIALIZED
 
     override fun getLifecycle() = lifecycleRegistry
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    fun onCreate() {
+    override fun onCreate(owner: LifecycleOwner) {
         activityState = Lifecycle.State.CREATED
         mapState = Lifecycle.State.CREATED
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    fun onStart() {
+    override fun onStart(owner: LifecycleOwner) {
         activityState = Lifecycle.State.STARTED
         if (mapState.isAtLeast(Lifecycle.State.STARTED)) {
             lifecycleRegistry.currentState = Lifecycle.State.STARTED
         }
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-    fun onResume() {
+    override fun onResume(owner: LifecycleOwner) {
         activityState = Lifecycle.State.RESUMED
         if (mapState.isAtLeast(Lifecycle.State.RESUMED)) {
             lifecycleRegistry.currentState = Lifecycle.State.RESUMED
@@ -47,29 +47,26 @@ class MapLifecycleOwner : LifecycleOwner, LifecycleObserver {
         }
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-    fun onPause() {
+    override fun onPause(owner: LifecycleOwner) {
         activityState = Lifecycle.State.STARTED
         if (mapState.isAtLeast(Lifecycle.State.STARTED)) {
             lifecycleRegistry.currentState = Lifecycle.State.STARTED
         }
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    fun onStop() {
+    override fun onStop(owner: LifecycleOwner) {
         activityState = Lifecycle.State.CREATED
         if (mapState.isAtLeast(Lifecycle.State.CREATED)) {
             lifecycleRegistry.currentState = Lifecycle.State.CREATED
         }
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    fun onDestroy(source: LifecycleOwner) {
+    override fun onDestroy(owner: LifecycleOwner) {
         activityState = Lifecycle.State.DESTROYED
         if (mapState.isAtLeast(Lifecycle.State.INITIALIZED)) {
             mapState = Lifecycle.State.DESTROYED
             lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
         }
-        source.lifecycle.removeObserver(this)
+        owner.lifecycle.removeObserver(this)
     }
 }
