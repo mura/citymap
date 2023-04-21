@@ -5,12 +5,12 @@ buildscript {
             'compileSdk'         : 31,
             'minSdk'             : 24,
             'targetSdk'          : 31,
-            'kotlin'             : '1.6.0',
+            'kotlin'             : '1.6.21',
             'coroutines'         : '1.5.2',
             'dagger_hilt'        : '2.40.5',
             'androidx_lifecycle' : '2.4.0',
             'androidx_room'      : '2.3.0',
-            'androidx_navigation': '2.3.5',
+            'androidx_navigation': '2.4.1',
             'androidx_paging'    : '3.1.0',
             'androidx_hilt'      : '1.0.0'
     ]
@@ -19,7 +19,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.4'
+        classpath 'com.android.tools.build:gradle:8.0.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files

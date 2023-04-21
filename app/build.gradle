@@ -8,6 +8,7 @@ apply plugin: 'androidx.navigation.safeargs.kotlin'
 apply plugin: 'dagger.hilt.android.plugin'
 
 android {
+    namespace 'jp.stoic.android.citymap'
     compileSdkVersion versions.compileSdk
     defaultConfig {
         applicationId "jp.stoic.android.citymap"
