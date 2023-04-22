@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
@@ -94,20 +94,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             if (binding.drawerLayout.isOpen == it) {
                 return@observe
             }
-            when(it) {
+            when (it) {
                 true -> binding.drawerLayout.open()
                 else -> binding.drawerLayout.close()
             }
             viewModel.drawerIsOpen.value = !it
         }
-
-        onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                if (binding.drawerLayout.isOpen) {
-                    binding.drawerLayout.close()
-                }
+        
+        onBackPressedDispatcher.addCallback {
+            if (binding.drawerLayout.isOpen) {
+                binding.drawerLayout.close()
+            } else {
+                finish()
             }
-        })
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -124,6 +124,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_home -> {
                 navHostController.navigate(R.id.action_main_to_history)
             }
+
             R.id.nav_license -> {
                 startActivity(Intent(this, OssLicensesMenuActivity::class.java))
             }
