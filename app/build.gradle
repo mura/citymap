@@ -16,8 +16,8 @@ android {
         applicationId "jp.stoic.android.citymap"
         minSdkVersion versions.minSdk
         targetSdkVersion versions.targetSdk
-        versionCode 17
-        versionName "0.5.0"
+        versionCode 18
+        versionName "0.5.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
