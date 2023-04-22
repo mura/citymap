@@ -28,6 +28,7 @@ class MainViewModel @Inject constructor(
 
     private val _cityBounds = MutableLiveData<CityBounds>()
     val trackingMode = MutableLiveData<TrackingMode>()
+    val drawerIsOpen = MutableLiveData<Boolean>()
 
     val cityBounds: LiveData<CityBounds>
         get() = _cityBounds
@@ -69,5 +70,9 @@ class MainViewModel @Inject constructor(
                 historyRepository.insert(selectedShape)
             }
         }
+    }
+
+    fun onMenuClick(view: View) {
+        drawerIsOpen.value = !(drawerIsOpen.value ?: false)
     }
 }

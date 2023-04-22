@@ -25,8 +25,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_marginTop="16dp"
                 app:layout_constraintTop_toTopOf="parent"
-                android:visibility="gone"
-                tools:visibility="visible" />
+                android:onClick="@{viewmodel::onMenuClick}" />
 
         <ImageButton
                 android:id="@+id/myLocationImageButton"
