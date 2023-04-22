@@ -7,19 +7,17 @@ import jp.stoic.android.citymap.vo.TrackingMode
 class CameraChanger(private val mapboxMap: MapboxMap) : Observer<TrackingMode> {
     private var trackingMode = TrackingMode.NONE
 
-    override fun onChanged(mode: TrackingMode?) {
-        mode ?: return
-
+    override fun onChanged(value: TrackingMode) {
         if (!mapboxMap.locationComponent.isLocationComponentActivated ||
             !mapboxMap.locationComponent.isLocationComponentEnabled
         ) {
             return
         }
 
-        if (mode != trackingMode) {
-            mapboxMap.locationComponent.cameraMode = mode.cameraMode
-            mapboxMap.locationComponent.renderMode = mode.renderMode
-            trackingMode = mode
+        if (value != trackingMode) {
+            mapboxMap.locationComponent.cameraMode = value.cameraMode
+            mapboxMap.locationComponent.renderMode = value.renderMode
+            trackingMode = value
         }
     }
 }

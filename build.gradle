@@ -2,16 +2,15 @@
 
 buildscript {
     ext.versions = [
-            'compileSdk'         : 31,
+            'compileSdk'         : 33,
             'minSdk'             : 24,
-            'targetSdk'          : 31,
-            'kotlin'             : '1.6.0',
-            'coroutines'         : '1.5.2',
-            'dagger_hilt'        : '2.40.5',
-            'androidx_lifecycle' : '2.4.0',
-            'androidx_room'      : '2.3.0',
-            'androidx_navigation': '2.3.5',
-            'androidx_paging'    : '3.1.0',
+            'targetSdk'          : 33,
+            'coroutines'         : '1.6.4',
+            'dagger_hilt'        : '2.45',
+            'androidx_lifecycle' : '2.6.1',
+            'androidx_room'      : '2.5.1',
+            'androidx_navigation': '2.5.3',
+            'androidx_paging'    : '3.1.1',
             'androidx_hilt'      : '1.0.0'
     ]
     repositories {
@@ -19,39 +18,18 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.4'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-        classpath 'com.google.gms:google-services:4.3.10'
-        classpath 'com.google.android.gms:oss-licenses-plugin:0.10.4'
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.8.1'
+        classpath 'com.google.gms:google-services:4.3.15'
+        classpath 'com.google.android.gms:oss-licenses-plugin:0.10.6'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.5'
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$versions.androidx_navigation"
-        classpath "com.google.dagger:hilt-android-gradle-plugin:$versions.dagger_hilt"
     }
 }
 
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        maven { url "https://jitpack.io" }
-        maven {
-            url 'https://api.mapbox.com/downloads/v2/releases/maven'
-            authentication {
-                basic(BasicAuthentication)
-            }
-            credentials {
-                // Do not change the username below.
-                // This should always be `mapbox` (not your username).
-                username = 'mapbox'
-                // Use the secret token you stored in gradle.properties as the password
-                password = project.properties['MAPBOX_DOWNLOADS_TOKEN'] ?: ""
-            }
-        }
-    }
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
+plugins {
+    id 'com.android.application' version '8.0.0' apply false
+    id 'com.android.library' version '8.0.0' apply false
+    id 'org.jetbrains.kotlin.android' version '1.8.20' apply false
+    id 'org.jetbrains.kotlin.kapt' version '1.8.20' apply false
+    id 'com.google.devtools.ksp' version '1.8.20-1.0.11' apply false
+    id 'com.google.dagger.hilt.android' version '2.45' apply false
 }
