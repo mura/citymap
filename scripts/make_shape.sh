@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 set -eux
 
-SHAPE_FILE=./N03-20210101_GML/N03-21_210101.shp
+SHAPE_FILE=./N03-20220101_GML/N03-22_220101.shp
 rm -rf style
 mkdir -p style/split
 # Bounds生成用分割Shape (コード別)
@@ -30,7 +30,9 @@ npx mapshaper $SHAPE_FILE name='split' \
   -o format=geojson encoding=utf8 bbox ./style/split/
 
 # 不要データ(分割時のあまり)
-rm ./style/split/split-.json ./style/split/split-null.json
+if [[ -f ./style/split/split-.json ]]; then
+  rm ./style/split/split-.json ./style/split/split-null.json
+fi
 
 # 市町村Shape
 npx mapshaper $SHAPE_FILE \
