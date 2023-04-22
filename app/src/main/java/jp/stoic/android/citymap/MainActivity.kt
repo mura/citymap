@@ -90,6 +90,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         binding.navigationView.setNavigationItemSelectedListener(this)
         OssLicensesMenuActivity.setActivityTitle(getString(R.string.activity_license_title))
 
+        viewModel.drawerIsOpen.observe(this) {
+            if (binding.drawerLayout.isOpen == it) {
+                return@observe
+            }
+            when(it) {
+                true -> binding.drawerLayout.open()
+                else -> binding.drawerLayout.close()
+            }
+            viewModel.drawerIsOpen.value = !it
+        }
+
         onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (binding.drawerLayout.isOpen) {
