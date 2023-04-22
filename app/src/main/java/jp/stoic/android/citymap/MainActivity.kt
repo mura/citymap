@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
@@ -60,10 +61,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         binding.mapView.getMapAsync { mapboxMap ->
             this.mapboxMap = mapboxMap
             viewModel.trackingMode.observe(mapLifecycleOwner, CameraChanger(mapboxMap))
-            viewModel.cityBounds.observe(mapLifecycleOwner, {
+            viewModel.cityBounds.observe(mapLifecycleOwner) {
                 viewModel.trackingMode.value = TrackingMode.NONE
                 mapboxMap.easeCamera(CameraUpdateFactory.newLatLngBounds(it.latLngBounds, 50))
-            })
+            }
             mapLifecycleOwner.onStartStyleLoad()
             val styleBuilder = Style.Builder()
                 .fromUri("mapbox://styles/muracchi/cjw2rwfof0by31cox2yuck1j6")
@@ -88,6 +89,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         binding.navigationView.setNavigationItemSelectedListener(this)
         OssLicensesMenuActivity.setActivityTitle(getString(R.string.activity_license_title))
+
+        onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (binding.drawerLayout.isOpen) {
+                    binding.drawerLayout.close()
+                }
+            }
+        })
     }
 
     override fun onRequestPermissionsResult(
@@ -111,14 +120,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         binding.drawerLayout.closeDrawer(GravityCompat.START)
         return true
-    }
-
-    override fun onBackPressed() {
-        if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
-        }
     }
 
     override fun onStart() {
