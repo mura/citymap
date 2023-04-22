@@ -10,7 +10,8 @@ class MapLifecycleOwner : LifecycleOwner, DefaultLifecycleObserver {
     private var activityState = Lifecycle.State.INITIALIZED
     private var mapState = Lifecycle.State.INITIALIZED
 
-    override fun getLifecycle() = lifecycleRegistry
+    override val lifecycle: Lifecycle
+        get() = lifecycleRegistry
 
     override fun onCreate(owner: LifecycleOwner) {
         activityState = Lifecycle.State.CREATED
