@@ -21,7 +21,8 @@ class MainFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentMainBinding.inflate(inflater, container, false).also {
-            it.viewmodel = viewModel
+            it.menuImageButton.setOnClickListener(viewModel::onMenuClick)
+            it.myLocationImageButton.setOnClickListener(viewModel::onMyLocationClick)
         }
         return binding!!.root
     }
