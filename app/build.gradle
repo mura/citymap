@@ -1,7 +1,6 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
-//    id 'org.jetbrains.kotlin.kapt'
     id 'com.google.dagger.hilt.android'
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
@@ -17,8 +16,8 @@ android {
         applicationId "jp.stoic.android.citymap"
         minSdkVersion versions.minSdk
         targetSdkVersion versions.targetSdk
-        versionCode 18
-        versionName "0.5.1"
+        versionCode 19
+        versionName "0.5.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -47,7 +46,6 @@ android {
         jvmToolchain(17)
     }
     buildFeatures {
-//        dataBinding true
         viewBinding true
         buildConfig true
     }
