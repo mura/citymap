@@ -14,10 +14,14 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import com.google.android.material.navigation.NavigationView
-import com.mapbox.mapboxsdk.Mapbox
-import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
-import com.mapbox.mapboxsdk.maps.MapboxMap
-import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.maps.CameraOptions
+import com.mapbox.maps.EdgeInsets
+import com.mapbox.maps.MapboxMap
+import com.mapbox.maps.Style
+import com.mapbox.maps.plugin.animation.camera
+import com.mapbox.maps.plugin.compass.compass
+import com.mapbox.maps.plugin.gestures.gestures
+import com.mapbox.maps.plugin.scalebar.scalebar
 import dagger.hilt.android.AndroidEntryPoint
 import jp.stoic.android.citymap.databinding.ActivityMainBinding
 import jp.stoic.android.citymap.domain.CameraChanger
@@ -47,7 +51,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Mapbox.getInstance(this, getString(R.string.mapbox_access_token))
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -57,24 +60,50 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         shapeViewModel.selectedShape.observe(this, viewModel::onShapeSelected)
 
-        binding.mapView.onCreate(savedInstanceState)
-        binding.mapView.getMapAsync { mapboxMap ->
-            this.mapboxMap = mapboxMap
-            viewModel.trackingMode.observe(mapLifecycleOwner, CameraChanger(mapboxMap))
-            viewModel.cityBounds.observe(mapLifecycleOwner) {
-                viewModel.trackingMode.value = TrackingMode.NONE
-                mapboxMap.easeCamera(CameraUpdateFactory.newLatLngBounds(it.latLngBounds, 50))
-            }
-            mapLifecycleOwner.onStartStyleLoad()
-            val styleBuilder = Style.Builder()
-                .fromUri("mapbox://styles/muracchi/cjw2rwfof0by31cox2yuck1j6")
-            mapboxMap.setStyle(styleBuilder) { style ->
-                this.currentStyle = style
-                mapLifecycleOwner.onStyleLoaded()
-                locationFacade.onStyleLoaded(mapboxMap, style)
-                mapboxMap.addOnMapClickListener(ShapeSelector(mapboxMap, style, shapeViewModel))
-                viewModel.searchBounds("23100")
-            }
+        val mapboxMap = binding.mapView.mapboxMap
+        this.mapboxMap = mapboxMap
+
+        val density = resources.displayMetrics.density
+        binding.mapView.scalebar.updateSettings {
+            isMetricUnits = true
+            position = android.view.Gravity.BOTTOM or android.view.Gravity.END
+            marginRight = 60f * density
+            marginBottom = 24f * density
+        }
+
+        binding.mapView.compass.updateSettings {
+            marginTop = 16f * density
+            marginRight = 16f * density
+        }
+
+        mapboxMap.setCamera(
+            CameraOptions.Builder()
+                .center(com.mapbox.geojson.Point.fromLngLat(136.8818636, 35.1695319))
+                .zoom(11.0)
+                .build()
+        )
+
+        viewModel.trackingMode.observe(mapLifecycleOwner, CameraChanger(binding.mapView))
+        viewModel.cityBounds.observe(mapLifecycleOwner) {
+            viewModel.trackingMode.value = TrackingMode.NONE
+            val cameraOptions = mapboxMap.cameraForCoordinates(
+                coordinates = listOf(it.coordinateBounds.southwest, it.coordinateBounds.northeast),
+                camera = CameraOptions.Builder().build(),
+                coordinatesPadding = EdgeInsets(50.0, 50.0, 50.0, 50.0),
+                maxZoom = null,
+                offset = null
+            )
+            binding.mapView.camera.easeTo(cameraOptions)
+        }
+
+        mapLifecycleOwner.onStartStyleLoad()
+
+        mapboxMap.loadStyle("mapbox://styles/muracchi/cjw2rwfof0by31cox2yuck1j6") { style ->
+            this.currentStyle = style
+            mapLifecycleOwner.onStyleLoaded()
+            locationFacade.onStyleLoaded(binding.mapView)
+            binding.mapView.gestures.addOnMapClickListener(ShapeSelector(mapboxMap, shapeViewModel))
+            viewModel.searchBounds("23100")
         }
 
         supportFragmentManager.findFragmentById(R.id.nav_host_fragment)?.let {
@@ -100,7 +129,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             viewModel.drawerIsOpen.value = !it
         }
-        
+
         onBackPressedDispatcher.addCallback {
             if (binding.drawerLayout.isOpen) {
                 binding.drawerLayout.close()
@@ -134,40 +163,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
-    override fun onStart() {
-        super.onStart()
-        binding.mapView.onStart()
-    }
-
     override fun onResume() {
         super.onResume()
-        binding.mapView.onResume()
         locationFacade.onResume()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        binding.mapView.onPause()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        binding.mapView.onStop()
-    }
-
-    override fun onLowMemory() {
-        super.onLowMemory()
-        binding.mapView.onLowMemory()
-    }
-
-    override fun onDestroy() {
-        binding.mapView.onDestroy()
-        super.onDestroy()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        binding.mapView.onSaveInstanceState(outState)
     }
 
     private fun ActivityMainBinding.hideToolbar() {

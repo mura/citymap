@@ -1,11 +1,16 @@
 package jp.stoic.android.citymap.domain
 
-import com.mapbox.mapboxsdk.geometry.LatLng
-import com.mapbox.mapboxsdk.maps.MapboxMap
-import com.mapbox.mapboxsdk.maps.Style
-import com.mapbox.mapboxsdk.style.expressions.Expression
-import com.mapbox.mapboxsdk.style.layers.FillLayer
-import com.mapbox.mapboxsdk.style.layers.SymbolLayer
+import com.mapbox.geojson.Point
+import com.mapbox.maps.MapboxMap
+import com.mapbox.maps.RenderedQueryGeometry
+import com.mapbox.maps.RenderedQueryOptions
+import com.mapbox.maps.ScreenCoordinate
+import com.mapbox.maps.extension.style.expressions.dsl.generated.eq
+import com.mapbox.maps.extension.style.expressions.generated.Expression
+import com.mapbox.maps.extension.style.layers.getLayerAs
+import com.mapbox.maps.extension.style.layers.generated.FillLayer
+import com.mapbox.maps.extension.style.layers.generated.SymbolLayer
+import com.mapbox.maps.plugin.gestures.OnMapClickListener
 import jp.stoic.android.citymap.viewmodel.ShapeViewModel
 import jp.stoic.android.citymap.vo.CityFeature
 import jp.stoic.android.citymap.vo.SelectedShape
@@ -13,50 +18,59 @@ import timber.log.Timber
 
 class ShapeSelector(
     private val mapboxMap: MapboxMap,
-    style: Style,
     private val shapeViewModel: ShapeViewModel
-) : MapboxMap.OnMapClickListener {
+) : OnMapClickListener {
     companion object {
         private const val SHAPE_LAYER_ID = "city-shape"
         private const val SHAPE_DATA_LAYER_ID = "city-shape-data"
     }
 
-    private var cityShapeLayer: FillLayer? = style.getLayerAs(SHAPE_LAYER_ID)
-    private var officeLayer: SymbolLayer? = style.getLayerAs("office")
+    override fun onMapClick(point: Point): Boolean {
+        val screenPoint = mapboxMap.pixelForCoordinate(point)
+        val geometry = RenderedQueryGeometry(screenPoint)
+        val options = RenderedQueryOptions(listOf(SHAPE_DATA_LAYER_ID), null)
 
-    override fun onMapClick(point: LatLng): Boolean {
-        val screenPoint = mapboxMap.projection.toScreenLocation(point)
-        val features = mapboxMap.queryRenderedFeatures(screenPoint, SHAPE_DATA_LAYER_ID)
-        if (features.size == 0) {
-            return false
-        }
-        val cityFeature = CityFeature.from(features)
+        mapboxMap.queryRenderedFeatures(geometry, options) { expected ->
+            val features = expected.value
+            if (features.isNullOrEmpty()) {
+                return@queryRenderedFeatures
+            }
 
-        Timber.tag("ShapeSelector").d("$cityFeature")
-        val nextShape = nextShape(cityFeature)
-        when (nextShape.mode) {
-            SelectedShape.Mode.CITY -> {
-                officeLayer?.setFilter(eqCode(cityFeature.code))
-                cityShapeLayer?.setFilter(eqCode(cityFeature.code))
+            // Extract geojson features
+            val geojsonFeatures = features.map { it.queriedFeature.feature }
+            val cityFeature = CityFeature.from(geojsonFeatures)
+
+            Timber.tag("ShapeSelector").d("$cityFeature")
+            val nextShape = nextShape(cityFeature)
+
+            val style = mapboxMap.style
+            val cityShapeLayer = style?.getLayerAs<FillLayer>(SHAPE_LAYER_ID)
+            val officeLayer = style?.getLayerAs<SymbolLayer>("office")
+
+            when (nextShape.mode) {
+                SelectedShape.Mode.CITY -> {
+                    officeLayer?.filter(eqCode(cityFeature.code))
+                    cityShapeLayer?.filter(eqCode(cityFeature.code))
+                }
+                SelectedShape.Mode.BIG_CITY -> {
+                    officeLayer?.filter(
+                        Expression.any(eqCode(cityFeature.bigCity), eqCodeC(cityFeature.bigCity))
+                    )
+                    cityShapeLayer?.filter(eqCodeC(cityFeature.bigCity))
+                }
+                SelectedShape.Mode.PREF -> {
+                    officeLayer?.filter(eqCodeP(cityFeature.pref))
+                    cityShapeLayer?.filter(eqCodeP(cityFeature.pref))
+                }
             }
-            SelectedShape.Mode.BIG_CITY -> {
-                officeLayer?.setFilter(
-                    Expression.any(eqCode(cityFeature.bigCity), eqCodeC(cityFeature.bigCity))
-                )
-                cityShapeLayer?.setFilter(eqCodeC(cityFeature.bigCity))
-            }
-            SelectedShape.Mode.PREF -> {
-                officeLayer?.setFilter(eqCodeP(cityFeature.pref))
-                cityShapeLayer?.setFilter(eqCodeP(cityFeature.pref))
-            }
+            shapeViewModel.setShape(nextShape)
         }
-        shapeViewModel.setShape(nextShape)
         return true
     }
 
-    private fun eqCode(code: String) = Expression.eq(Expression.get("CODE"), code)
-    private fun eqCodeC(code: String) = Expression.eq(Expression.get("CODE_C"), code)
-    private fun eqCodeP(code: String) = Expression.eq(Expression.get("CODE_P"), code)
+    private fun eqCode(code: String) = Expression.eq(Expression.get("CODE"), Expression.literal(code))
+    private fun eqCodeC(code: String) = Expression.eq(Expression.get("CODE_C"), Expression.literal(code))
+    private fun eqCodeP(code: String) = Expression.eq(Expression.get("CODE_P"), Expression.literal(code))
 
     private fun nextShape(cityFeature: CityFeature): SelectedShape {
         val currentShape = shapeViewModel.selectedShape.value

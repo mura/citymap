@@ -13,13 +13,10 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-        <com.mapbox.mapboxsdk.maps.MapView
+        <com.mapbox.maps.MapView
                 android:id="@+id/mapView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:mapbox_cameraTargetLat="35.1695319"
-                app:mapbox_cameraTargetLng="136.8818636"
-                app:mapbox_cameraZoom="11"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent" />
 

@@ -6,7 +6,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mapbox.android.core.permissions.PermissionsManager
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.stoic.android.citymap.domain.Analytics
 import jp.stoic.android.citymap.repository.BoundsRepository
@@ -55,7 +57,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun onMyLocationClick(view: View) {
-        if (!PermissionsManager.areLocationPermissionsGranted(view.context)) {
+        if (ContextCompat.checkSelfPermission(view.context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return
         }
 
