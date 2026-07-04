@@ -6,8 +6,8 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath libs.oss.licenses.plugin
-        classpath libs.navigation.safe.args.plugin
+        classpath(libs.oss.licenses.plugin)
+        classpath(libs.navigation.safe.args.plugin)
     }
 }
 

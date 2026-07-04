@@ -5,29 +5,32 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
 plugins {
-    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
-        maven { url "https://jitpack.io" }
+        maven("https://jitpack.io")
         maven {
-            url 'https://api.mapbox.com/downloads/v2/releases/maven'
+            url = uri("https://api.mapbox.com/downloads/v2/releases/maven")
             authentication {
-                basic(BasicAuthentication)
+                create<BasicAuthentication>("basic")
             }
             credentials {
                 // Do not change the username below.
                 // This should always be `mapbox` (not your username).
-                username = 'mapbox'
+                username = "mapbox"
                 // Use the secret token you stored in gradle.properties as the password
-                password = MAPBOX_DOWNLOADS_TOKEN
+                password = providers.gradleProperty("MAPBOX_DOWNLOADS_TOKEN").get()
             }
         }
     }
 }
+
 rootProject.name = "citymap"
-include ':app'
+include(":app")
