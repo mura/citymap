@@ -1,35 +1,28 @@
 package jp.stoic.android.citymap.domain
 
-import android.annotation.SuppressLint
+import android.Manifest
+import android.content.pm.PackageManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.mapbox.android.core.permissions.PermissionsListener
-import com.mapbox.android.core.permissions.PermissionsManager
-import com.mapbox.mapboxsdk.location.LocationComponent
-import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
-import com.mapbox.mapboxsdk.maps.MapboxMap
-import com.mapbox.mapboxsdk.maps.Style
+import androidx.core.content.ContextCompat
+import com.mapbox.maps.MapView
+import com.mapbox.maps.plugin.locationcomponent.createDefault2DPuck
+import com.mapbox.maps.plugin.locationcomponent.location
 import jp.stoic.android.citymap.viewmodel.MainViewModel
 import jp.stoic.android.citymap.vo.TrackingMode
 
 class LocationFacade(private val activity: AppCompatActivity) {
-    private var permissionsManager: PermissionsManager? = null
-    private var locationComponent: LocationComponent? = null
-    private var style: Style? = null
+    private var mapView: MapView? = null
     private val mainViewModel: MainViewModel by activity.viewModels()
 
     fun onResume() {
-        if (PermissionsManager.areLocationPermissionsGranted(activity)) return
-
-        permissionsManager = PermissionsManager(object : PermissionsListener {
-            override fun onExplanationNeeded(permissionsToExplain: MutableList<String>?) {
-            }
-
-            override fun onPermissionResult(granted: Boolean) {
-            }
-
-        })
-        permissionsManager?.requestLocationPermissions(activity)
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            return
+        }
+        activity.requestPermissions(
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+            0
+        )
     }
 
     fun onRequestPermissionsResult(
@@ -37,29 +30,27 @@ class LocationFacade(private val activity: AppCompatActivity) {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        permissionsManager?.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            enableLocationComponent()
+        }
+    }
+
+    fun onStyleLoaded(mapView: MapView) {
+        this.mapView = mapView
         enableLocationComponent()
     }
 
-    fun onStyleLoaded(mapboxMap: MapboxMap, style: Style) {
-        this.locationComponent = mapboxMap.locationComponent
-        this.style = style
-        enableLocationComponent()
-    }
-
-    @SuppressLint("MissingPermission")
     private fun enableLocationComponent(): Boolean {
-        if (!PermissionsManager.areLocationPermissionsGranted(activity)) {
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return false
         }
 
-        val locationComponent = locationComponent ?: return false
-        val style = style ?: return false
+        val mapView = mapView ?: return false
 
-        locationComponent.activateLocationComponent(
-            LocationComponentActivationOptions.builder(activity, style).build()
-        )
-        locationComponent.isLocationComponentEnabled = true
+        mapView.location.updateSettings {
+            enabled = true
+            locationPuck = createDefault2DPuck(withBearing = true)
+        }
 
         if (mainViewModel.trackingMode.value == null) {
             mainViewModel.trackingMode.value = TrackingMode.TRACKING

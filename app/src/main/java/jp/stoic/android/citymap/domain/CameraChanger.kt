@@ -1,22 +1,25 @@
 package jp.stoic.android.citymap.domain
 
 import androidx.lifecycle.Observer
-import com.mapbox.mapboxsdk.maps.MapboxMap
+import com.mapbox.maps.MapView
+import com.mapbox.maps.plugin.viewport.viewport
 import jp.stoic.android.citymap.vo.TrackingMode
 
-class CameraChanger(private val mapboxMap: MapboxMap) : Observer<TrackingMode> {
+class CameraChanger(private val mapView: MapView) : Observer<TrackingMode> {
     private var trackingMode = TrackingMode.NONE
 
     override fun onChanged(value: TrackingMode) {
-        if (!mapboxMap.locationComponent.isLocationComponentActivated ||
-            !mapboxMap.locationComponent.isLocationComponentEnabled
-        ) {
-            return
-        }
-
         if (value != trackingMode) {
-            mapboxMap.locationComponent.cameraMode = value.cameraMode
-            mapboxMap.locationComponent.renderMode = value.renderMode
+            when (value) {
+                TrackingMode.TRACKING -> {
+                    mapView.viewport.transitionTo(
+                        mapView.viewport.makeFollowPuckViewportState()
+                    )
+                }
+                TrackingMode.NONE -> {
+                    mapView.viewport.idle()
+                }
+            }
             trackingMode = value
         }
     }
